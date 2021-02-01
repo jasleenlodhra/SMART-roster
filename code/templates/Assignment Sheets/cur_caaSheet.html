@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!--Content Here-->
+<!--Jumbotron-->
+<div class="jumbotron py-3">
+  <div class="jumbotron-content">
+    <div class="row justify-content-md-center">
+      <h1 class="jumbotron-title col">Clinical Area Assignment Page</h1>
+    </div>
+    <a href="#" onclick="printPage()" style="position: absolute; right: 50px; top: 30px;">
+      <i class="fas fa-print fa-3x" style="color:black"></i>
+      <br><small>Print</small>
+    </a>
+    <small class="mb-2">{{now.strftime("%B %d, %Y - %I:%M:%S %p")}}</small><br>
+    <small class="mb-2">Last Updated: {{state['timestamp']}}</small>
+    <br><br>
+    <!--Charge Nurse-->
+    <div class="row">
+      <div class="col rounded pt-3 px-4 mx-5 shadow-sm special_custom_box">
+        <div class="row justify-content-center">
+          <div class="col-9">
+            <h6>Charge Nurses</h6>
+          </div>
+          <div class="col-3">
+            <h6>Skill Level</h6>
+          </div>
+        </div>
+        {% for i in range(3)%}
+        <div class="row justify-content-center mb-2">
+          {% if state['charge'][i]%}
+          <input id="cn-{{i + 1}}" class="col-8 form-control form-control-sm rounded text-center" type="text"
+            {% for nurse in nurseList if nurse[0]==state['charge'][i]|int %} value="{{nurse[1]}}" {% endfor %} disabled>
+          <input id="cn-skill-{{i + 1}}" class="col-2 offset-1 form-control form-control-sm rounded text-center"
+            type="text" {% for nurse in nurseList if nurse[0]==state['charge'][i]|int %} {% if nurse[8]==1 %}
+            value="{{nurse[7]}}A" {% else %} value="{{nurse[7]}}" {% endif %} {% endfor %} disabled>
+          {% else %}
+          <input id="cn-{{i + 1}}" class="col-8 form-control form-control-sm rounded text-center" type="text" value=""
+            disabled>
+          <input class="col-2 offset-1 form-control form-control-sm rounded text-center" type="text" value="" disabled>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      <!--Support Nurses-->
+      <div class="col rounded pt-3 pl-4 pr-5 mx-5 shadow-sm special_custom_box">
+        <div class="row justify-content-center">
+          <div class="col-8">
+            <h6>Support Nurses</h6>
+          </div>
+          <div class="col-2">
+            <h6>Area</h6>
+          </div>
+          <div class="col-2">
+            <h6>Shift</h6>
+          </div>
+        </div>
+        {% for i in range(3)%}
+        <div class="row justify-content-center mb-2">
+          {% if state['support'][i] %}
+          <input id="supp-{{i + 1}}" class="col-6 offset-1 form-control form-control-sm rounded text-center" type="text"
+            {% for nurse in nurseList if nurse[0]==state['support'][i]|int %} value="{{nurse[1]}}" {% endfor %}
+            disabled>
+          <input id="supp-area-{{i + 1}}" class="col-2 offset-1 form-control form-control-sm rounded text-center"
+            type="text" {% for nurse in nurseList if nurse[0]==state['support'][i]|int %} value="{{nurse[2]}}" {% endfor %} disabled>
+          <input id="supp-shift-{{i + 1}}" class="col-2 form-control form-control-sm rounded text-center" type="text"
+            {% for nurse in nurseList if nurse[0]==state['support'][i]|int %} value="{{nurse[4]}}" {% endfor %}
+            disabled>
+          {% else %}
+          <input id="supp-{{i + 1}}" class="col-6 offset-1 form-control form-control-sm rounded text-center" type="text"
+            value="" disabled>
+          <input id="supp-area-{{i + 1}}" class="col-2 offset-1 form-control form-control-sm rounded text-center"
+            type="text" value="" disabled>
+          <input id="supp-shift-{{i + 1}}" class="col-2 form-control form-control-sm rounded text-center" type="text"
+            value="" disabled>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      <!--Right Column-->
+      <div class="col mx-5">
+        <div class="row w-100 px-2 shadow-sm special_custom_box"
+          style="padding: 10px 30px; border-radius: 5px;">
+          <div class="col-4">
+            <h6>Code RN</h6>
+          </div>
+          {% if state['code'][0] %}
+          <input class="col-6 form-control form-control-sm rounded text-center" type="text"
+            {% for nurse in nurseList if nurse[0]==state['code'][0]|int %} value="{{nurse[1]}}" {% endfor %} disabled>
+          {% else %}
+          <input class="col-6 form-control form-control-sm rounded text-center" type="text" value="" disabled>
+          {% endif %}
+          <div class="col-1"></div>
+        </div>
+        <div class="mt-3 rounded col-12 row w-100 px-2 shadow-sm special_custom_box"
+          style="padding: 10px 30px; width: 100px">
+          <div class="row col-12">
+            <h6 class="mt-1 col-4">Fixed</h6>
+            <input class="col-4 ml-2 mb-3 form-control form-control-sm rounded text-center" type="text" value="{{state['fixed']}}"
+              disabled>
+          </div>
+          <div class="row col-12">
+            <h6 class="mt-1 col-4">Flex</h6>
+            <input class="col-4 ml-2 form-control form-control-sm rounded text-center" type="text" value="{{state['flex']}}"
+              disabled>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br>
+</div>
+
+{% set areas=["A", "B", "C", "D", "E", "F"] %}
+{% set area_iter = namespace(value=0) %}
+
+<div class="container-fluid px-5">
+  <div class="justify-content-center">
+    <div class="col-12">
+      <!--Clinical Area Container-->
+      {% for i in range(6) %}
+      <div class="row col-12 mb-3 m-0 p-0 shadow-sm" style="border-radius: 10px; border: 1px solid lightgrey;">
+        <div style="border-top-left-radius: 10px; border-bottom-left-radius: 10px;" {% if area_iter.value < 4 %}
+          class="pod-norm px-4 py-2" {% else %} class="pod-spec px-4 py-2" {% endif %}>
+          <p class="text-center" style="margin-top: 125px;"><b>{{areas[area_iter.value]}}</b></p>
+
+        </div>
+        {% for i in range(2) %}
+        <div class="col-5">
+          <div class="row justify-content-center">
+            <div class="col-5">
+              <small class="mt-1"><b>Name</b></small>
+            </div>
+            <div class="col-1 mx-1">
+              <small class="mt-1"><b>Skill</b></small>
+            </div>
+            <div class="col-1 mx-1 ">
+              <small class="mt-1"><b>Group</b></small>
+            </div>
+            <div class="col-1 mx-1">
+              <small class="mt-1"><b>Shift</b></small>
+            </div>
+            <div class="col-1">
+
+            </div>
+          </div>
+          {% for j in range(7) %}
+          {% set row_col_num = (7*i + j) %}
+          {% set pod_row_id = "pod-" + areas[area_iter.value] + "-row-" + (row_col_num + 1)|string %}
+          <div id="{{pod_row_id}}" class="row justify-content-center mb-2">
+            <input id="{{pod_row_id}}-name" class="col-5 form-control form-control-sm rounded text-center mx-1"
+              type="text" {% if areaNurseList[area_iter.value][row_col_num] %}
+              {% for nurse in nurseList if nurse[0]==areaNurseList[area_iter.value][row_col_num] %} value="{{nurse[1]}}"
+              {% endfor %} {% endif %} disabled>
+            <input id="{{pod_row_id}}-skill" class="col-1 form-control form-control-sm rounded text-center mx-1"
+              type="text" {% if areaNurseList[area_iter.value][row_col_num] %}
+              {% for nurse in nurseList if nurse[0]==areaNurseList[area_iter.value][row_col_num] %} {% if nurse[8]==1 %}
+              value="{{nurse[7]}}A" {% else %} value="{{nurse[7]}}" {% endif %} {% endfor %} {% endif %} disabled>
+            <input id="{{pod_row_id}}-team" class="col-1 form-control form-control-sm rounded text-center mx-1"
+              type="text" {% if areaNurseList[area_iter.value][row_col_num] %}
+              {% for nurse in nurseList if nurse[0]==areaNurseList[area_iter.value][row_col_num] %} value="{{nurse[5]}}"
+              {% endfor %} {% endif %} disabled>
+            <input id="{{pod_row_id}}-shift" class="col-1 form-control form-control-sm rounded text-center mx-1"
+              type="text" {% if areaNurseList[area_iter.value][row_col_num] %}
+              {% for nurse in nurseList if nurse[0]==areaNurseList[area_iter.value][row_col_num] %} value="{{nurse[4]}}"
+              {% endfor %} {% endif %} disabled>
+            {% if areaNurseList[area_iter.value][row_col_num] %}
+            {% for nurse in nurseList if nurse[0]==areaNurseList[area_iter.value][row_col_num] 
+              and (nurse[-3]!="" or nurse[-4]!="") %}
+            <button id="{{pod_row_id}}-flag" class="col-1 btn form-control-sm btn-warning mx-1 " data-toggle="modal"
+              data-target="#flagModal" data-dta="{{nurse[-4]}}" data-comments="{{nurse[-3]}}" data-nurse="{{nurse[1]}}">
+              <i class="fas fa-exclamation-circle"></i>
+            </button>
+            {% else %}
+            <button id="{{pod_row_id}}-flag" class="col-1 btn form-control-sm btn-warning mx-1 invisible"
+              data-toggle="modal" data-target="#flagModal">
+              <i class="fas fa-exclamation-circle"></i>
+            </button>
+            {% endfor %}
+            {% else %}
+            <button id="{{pod_row_id}}-flag" class="col-1 btn form-control-sm btn-warning mx-1 invisible"
+              data-toggle="modal" data-target="#flagModal">
+              <i class="fas fa-exclamation-circle"></i>
+            </button>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+        {% set area_iter.value = area_iter.value + 1 %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!--Flag Modal-->
+<div class="modal fade" id="flagModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="flagModalTitle"></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h6>Duty to Accommadate</h6>
+        <small id="flag-dta"></small>
+        <hr>
+        <h6>Comments</h6>
+        <small id="flag-comment"></small>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function filterFunction() {
+    var input, filter, ul, li, a, i;
+    input = document.getElementById("myInput");
+    filter = input.value.toUpperCase();
+    div = document.getElementById("myDropdown");
+    a = div.getElementsByTagName("a");
+    for (i = 0; i < a.length; i++) {
+      txtValue = a[i].textContent || a[i].innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        a[i].style.display = "";
+      } else {
+        a[i].style.display = "none";
+      }
+    }
+  }
+
+  // Print Page
+  function printPage() {
+    var css = '@page { size: landscape; }',
+      head = document.head || document.getElementsByTagName('head')[0],
+      style = document.createElement('style');
+
+    style.type = 'text/css';
+    style.media = 'print';
+
+    if (style.styleSheet) {
+      style.styleSheet.cssText = css;
+    } else {
+      style.appendChild(document.createTextNode(css));
+    }
+    head.appendChild(style);
+    window.print();
+  }
+
+  // Load Modal Data
+  $('#flagModal').on('show.bs.modal', function (e) {
+    var dta = $(e.relatedTarget).data('dta');
+    var comments = $(e.relatedTarget).data('comments');
+    var nurse = $(e.relatedTarget).data('nurse');
+
+    $(e.currentTarget).find('#flagModalTitle').html("DTA/Comments for " + nurse);
+    $(e.currentTarget).find('#flag-dta').html(dta);
+    $(e.currentTarget).find('#flag-comment').html(comments);
+  });
+
+</script>
+
+{% endblock %}

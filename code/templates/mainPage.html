@@ -1,0 +1,1035 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="row">
+    <!--Left Sidebar View-->
+    <div class="col-2 pl-0">
+        <div class="list-group tab_menu_custom" id="list-tab" role="tablist" style="z-index: 0;">
+            <a href="#" data-toggle="modal" data-target="#runVerifyModal" style="border-radius: 35px;"
+                class="list-group-item list-group-item-action run_tab_custom ml-3 mb-4 mt-5"><img
+                    class="sidebar-icons tab_image_custom" src="/images/run.png">Run Scheduler</a>
+            <a class="list-group-item list-group-item-action tab_custom active" id="list-assignments-list"
+                data-toggle="list" href="#list-assignments" role="tab" aria-controls="assignments"><img
+                    class="sidebar-icons tab_image_custom" src="/images/current_shift.png">Current Shift</a>
+            <a class="list-group-item list-group-item-action tab_custom" id="list-records-list" data-toggle="list"
+                href="#list-records" role="tab" aria-controls="records"><img class="sidebar-icons tab_image_custom"
+                    src="/images/records.png">Records</a>
+            <a class="list-group-item list-group-item-action tab_custom" id="list-future-list" data-toggle="list"
+                href="#list-future" role="tab" aria-controls="future"><img class="sidebar-icons tab_image_custom"
+                    src="/images/fastforward.png">Future Shifts</a>
+            <a class="list-group-item list-group-item-action tab_custom" id="list-pastsheets-list" data-toggle="list"
+                href="#list-pastsheets" role="tab" aria-controls="pastsheets"><img
+                    class="sidebar-icons tab_image_custom" src="/images/pastsheets.png">Past Sheets</a>
+        </div>
+    </div>
+    <!--Card Area-->
+    <div class="col-9 mt-5">
+        <div class="tab-content" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="list-assignments" role="tabpanel"
+                aria-labelledby="list-assignments-list">
+                <div class="row ml-5">
+                    <div class="card-deck">
+                        <div class="card text-center card_custom" style="width: 18rem;">
+                            <img class="mx-auto custom_card_img" height="80px" src="/images/add-nurse-icon.png"
+                                alt="nurse assignment image">
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <h5>Clinical Area Assignment</h5>
+                                </div>
+                                <p class="card-text text-center">View the Clinical Area Assignment and make quick
+                                    changes if necessary</p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="/currentCAASheet" class="btn btn-lg btn-block button_custom">View</a>
+                            </div>
+                        </div>
+                        <div class="card text-center card_custom" style="width: 18rem;">
+                            <img class="mx-auto custom_card_img" height="80px" src="/images/patient_records.png"
+                                alt="patient assignment image">
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <h5>Patient/Nurse Assignment</h5>
+                                </div>
+                                <p class="card-text  text-center">View the Patient/Nurse Assignment and make quick
+                                    changes if necessary</p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="/currentPNSheet" class="btn btn-lg btn-block button_custom">View</a>
+                            </div>
+                        </div>
+                        <!--Current Nurse Assignment-->
+                        <div class="card text-center card_custom" style="width: 18rem;">
+                            <img class="mx-auto custom_card_img" height="80px" src="/images/add_nurse.png"
+                                alt="patient assignment image">
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <h5>Add Nurses to Current Shift</h5>
+                                </div>
+                                <p class="card-text text-center">Add all the nurses scheduled to work in current shift
+                                </p>
+                            </div>
+                            <div class="card-footer">
+                                <button type=button class="btn btn-lg btn-block button_custom" data-toggle="modal"
+                                    data-target="#currAssignmentModal">Assign</button>
+                            </div>
+                        </div>
+                        <!--Charge and Support Nurse Assignment-->
+                        <div class="card text-center card_custom" style="width: 18rem;">
+                            <img class="mx-auto custom_card_img" height="80px" src="/images/add_nurse.png"
+                                alt="patient assignment image">
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <h5>Assign Advanced Roles to Current Shift Nurses</h5>
+                                </div>
+                                <p class="card-text text-center">Assign advanced roles to nurses scheduled to work in
+                                    current shift
+                                </p>
+                            </div>
+                            <div class="card-footer">
+                                <button type=button class="btn btn-lg btn-block button_custom" data-toggle="modal"
+                                    data-target="#cnSuppAssignmentModal">Assign</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="list-records" role="tabpanel" aria-labelledby="list-records-list">
+                <div class="row ml-5">
+                    <div class="card-deck">
+                        <div class="card text-center card_custom" style="width: 18rem;">
+                            <img class="mx-auto custom_card_img" height="80px" src="/images/nurse-records-icon.png"
+                                alt="nurse records image">
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <h5>Nurse Records</h5>
+                                </div>
+                                <p class="card-text text-center">View all nurses in the database. Add, delete, or edit
+                                    nurses freely.</p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="/nurseRecords" class="btn btn-lg btn-block button_custom">View</a>
+                            </div>
+                        </div>
+                        <div class="card text-center card_custom" style="width: 18rem;">
+                            <img class="mx-auto custom_card_img" height="80px" src="/images/patient-records-icon.png"
+                                alt="patient records image">
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <h5>Patient Records</h5>
+                                </div>
+                                <p class="card-text text-center">View all patients in the database. Add, delete, or edit
+                                    freely.</p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="/patientRecords" class="btn btn-lg btn-block button_custom">View</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="list-future" role="tabpanel" aria-labelledby="list-future-list">
+                <div class="row ml-5">
+                    <div class="card-deck">
+                        <div class="card text-center card_custom" style="width: 18rem;">
+                            <img class="mx-auto custom_card_img" height="80px" src="/images/past-assignments-icon.png"
+                                alt="Past Clinical Area Assignments image">
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <h5>Future Shifts Planning</h5>
+                                </div>
+                                <p class="card-text text-center">View clinical area assignment sheet that is editable.
+                                    Make changes and save them for future reference.</p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="/futureCAASheet" class="btn btn-lg btn-block button_custom">View</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="list-pastsheets" role="tabpanel" aria-labelledby="list-pastsheets-list">
+                <div class="row ml-5">
+                    <div class="card-deck">
+                        <div class="card text-center card_custom" style="width: 18rem;">
+                            <img class="mx-auto custom_card_img" height="80px" src="/images/past-assignments-icon.png"
+                                alt="Past Patient/Nurse Assignments">
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <h5>Past Assignments</h5>
+                                </div>
+                                <p class="card-text text-center">View past assignment sheets. Search by
+                                    date.</p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="/pastPNSheet" class="btn btn-lg btn-block button_custom">View</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Current Shift Nurses Assignment Modal-->
+<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="currAssignmentModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Assign Nurses to Current Shift</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="assign-section1" class="col-12 row">
+                    <div class="form-group col-5" style="text-align: center;">
+                        <label for="full-nurse-list">Unassigned Nurse List</label>
+                        <input class="form-control form-control-sm" type="text" id="fullFilter" placeholder="Filter...">
+                        <select multiple size="17" class="form-control" id="full-nurse-list">
+                            {% for index, nurse in enumerate(nurseList) %}
+                            {% if nurse[-1]==0 %}
+                            {% if nurse[11]=="Charge" %}
+                            <option class="table-success" id="{{nurse[0]}}" name="{{nurse[0]}}" value="{{nurse[0]}}">
+                                {{nurse[1]}} -
+                                {{nurse[5]}}</option>
+                            {% elif nurse[11]=="Support" %}
+                            <option class="table-warning" id="{{nurse[0]}}" name="{{nurse[0]}}" value="{{nurse[0]}}">
+                                {{nurse[1]}} -
+                                {{nurse[5]}}</option>
+                            {% elif nurse[11]=="Code" %}
+                            <option class="table-danger" id="{{nurse[0]}}" name="{{nurse[0]}}" value="{{nurse[0]}}">
+                                {{nurse[1]}} -
+                                {{nurse[5]}}</option>
+                            {% else %}
+                            <option id="{{nurse[0]}}" name="{{nurse[0]}}" value="{{nurse[0]}}">
+                                {{nurse[1]}} -
+                                {{nurse[5]}}</option>
+                            {% endif %}
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="btn-group-vertical col-2">
+                        <button class="btn" onclick="currShiftToggle('left')"><i
+                                class="fas fa-chevron-left"></i></button>
+                        <br>
+                        <button class="btn" onclick="currShiftToggle('right')"><i
+                                class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="form-group col-5" style="text-align: center;">
+                        <label for="curr-nurse-store">Current Shift Nurses</label>
+                        <input class="form-control form-control-sm" type="text" id="currFilter" placeholder="Filter...">
+                        <select multiple size="17" class="form-control" id="curr-nurse-store">
+                            {% for index, nurse in enumerate(nurseList) %}
+                            {% if nurse[-1]==1 %}
+                            {% if nurse[11]=="Charge" %}
+                            <option class="table-success" id="{{nurse[0]}}" name="{{nurse[0]}}" value="{{nurse[0]}}">
+                                {{nurse[1]}} -
+                                {{nurse[5]}}</option>
+                            {% elif nurse[11]=="Support" %}
+                            <option class="table-warning" id="{{nurse[0]}}" name="{{nurse[0]}}" value="{{nurse[0]}}">
+                                {{nurse[1]}} -
+                                {{nurse[5]}}</option>
+                            {% elif nurse[11]=="Code" %}
+                            <option class="table-danger" id="{{nurse[0]}}" name="{{nurse[0]}}" value="{{nurse[0]}}">
+                                {{nurse[1]}} -
+                                {{nurse[5]}}</option>
+                            {% else %}
+                            <option id="{{nurse[0]}}" name="{{nurse[0]}}" value="{{nurse[0]}}">
+                                {{nurse[1]}} -
+                                {{nurse[5]}}</option>
+                            {% endif %}
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <hr>
+                <div class="form-group row col-6">
+                    <label for="curr-fixed" class="align-middle col-6">Select Fixed Group: </label>
+                    <select id="curr-fixed" class="form-control form-control-sm col-4">
+                        {% for num in groupNum %}
+                        <option id="option{{num}}" value={{num}}>{{num}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group row col-6">
+                    <label for="curr-flex" class="align-middle col-6">Select Flex Group: </label>
+                    <select id="curr-flex" class="form-control form-control-sm col-4">
+                        {% for num in groupNum %}
+                        <option id="option{{num}}" value={{num}}>{{num}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <form action="/updateCurrNurses" method="post">
+                    <input id="fixed-submit" name="fixed" value="1" hidden>
+                    <input id="flex-submit" name="flex" value="1" hidden>
+                    <button id="currNurseSubmit" type="submit" class="btn btn-create_custom" name="current_nurses_list"
+                        value="">Save</button>
+                    <button class="btn btn-secondary" data-dismiss="modal" aria-label="Close">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Charge + Support Nurse Assignment Modal-->
+<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="cnSuppAssignmentModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Assign Advanced + Learning Roles</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h5>Advanced Roles</h5>
+                <!--Charge Nurse Assignment-->
+                <div id="cn-assignment" class="col-12 row">
+                    <div class="form-group col-5" style="text-align: center;">
+                        <label for="curr-cn-store">Assigned Charge Nurses</label>
+                        <select multiple size="8" class="form-control" id="curr-cn-store">
+                            {% for index, nurse in enumerate(nurseList) %}
+                            {% if (nurse[-1]==1) and (nurse[11]=="Charge") %}
+                            <option class="table-success" id="{{nurse[0]}}" name="{{nurse[0]}}" value="{{nurse[0]}}">
+                                {{nurse[1]}} -
+                                {{nurse[5]}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="btn-group-vertical col-2">
+                        <button class="btn" onclick="cnToggle('left')"><i class="fas fa-chevron-left"></i></button>
+                        <br>
+                        <button class="btn" onclick="cnToggle('right')"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="form-group col-5" style="text-align: center;">
+                        <label for="curr-cn">Current Shift Nurses</label>
+                        <select multiple size="8" class="form-control" id="curr-cn">
+                            {% for index, nurse in enumerate(nurseList) %}
+                            {% if (nurse[-1]==1) and (nurse[11]!="Charge") %}
+                            <option id="{{nurse[0]}}" name="{{nurse[0]}}" value="{{nurse[0]}}">{{nurse[1]}} -
+                                {{nurse[5]}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <hr>
+                <!--Support Nurse Assignment-->
+                <div id="support-assignment" class="col-12 row">
+                    <div class="form-group col-5" style="text-align: center;">
+                        <label for="curr-support-store">Assigned Support Nurses</label>
+                        <select multiple size="8" class="form-control" id="curr-support-store">
+                            {% for index, nurse in enumerate(nurseList) %}
+                            {% if (nurse[-1]==1) and (nurse[11]=="Support") %}
+                            <option class="table-warning" id="{{nurse[0]}}" name="{{nurse[0]}}" value="{{nurse[0]}}">
+                                {{nurse[1]}} -
+                                {{nurse[5]}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="btn-group-vertical col-2">
+                        <button class="btn" onclick="suppToggle('left')"><i class="fas fa-chevron-left"></i></button>
+                        <br>
+                        <button class="btn" onclick="suppToggle('right')"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="form-group col-5" style="text-align: center;">
+                        <label for="curr-support">Current Shift Nurses</label>
+                        <select multiple size="8" class="form-control" id="curr-support">
+                            {% for index, nurse in enumerate(nurseList) %}
+                            {% if (nurse[-1]==1) and (nurse[11]!="Support") %}
+                            <option id="{{nurse[0]}}" name="{{nurse[0]}}" value="{{nurse[0]}}">{{nurse[1]}} -
+                                {{nurse[5]}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <!--Code Nurse Assignment-->
+                <div id="code-assignment" class="col-12 row">
+                    <div class="form-group col-5" style="text-align: center;">
+                        <label for="curr-code-store">Assigned Code Nurses</label>
+                        <select multiple size="8" class="form-control" id="curr-code-store">
+                            {% for index, nurse in enumerate(nurseList) %}
+                            {% if (nurse[-1]==1) and (nurse[11]=="Code") %}
+                            <option class="table-danger" id="{{nurse[0]}}" name="{{nurse[0]}}" value="{{nurse[0]}}">
+                                {{nurse[1]}} -
+                                {{nurse[5]}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="btn-group-vertical col-2">
+                        <button class="btn" onclick="codeToggle('left')"><i class="fas fa-chevron-left"></i></button>
+                        <br>
+                        <button class="btn" onclick="codeToggle('right')"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="form-group col-5" style="text-align: center;">
+                        <label for="curr-code">Current Shift Nurses</label>
+                        <select multiple size="8" class="form-control" id="curr-code">
+                            {% for index, nurse in enumerate(nurseList) %}
+                            {% if (nurse[-1]==1) and (nurse[11]!="Code") %}
+                            <option id="{{nurse[0]}}" name="{{nurse[0]}}" value="{{nurse[0]}}">{{nurse[1]}} -
+                                {{nurse[5]}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <form action="/updateAdvRole" method="POST">
+                    <input type="text" id="codeNurseSubmit" hidden name="code_nurses_list" value="">
+                    <input type="text" id="suppNurseSubmit" hidden name="support_nurses_list" value="">
+                    <button type="submit" id="cNurseSubmit" class="btn btn_create_custom" name="charge_nurses_list"
+                        value="">Save</button>
+                    <button class="btn btn-secondary" data-dismiss="modal" aria-label="Close">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Scheduler Verification Modal-->
+<div class="modal fade" tabindex="-10" role="dialog" aria-hidden="true" id="runVerifyModal">
+    <div class="modal-dialog modal-lg mw-100 w-75">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Please Verify Before Running Scheduler</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="col-12 row">
+                    <table class="table table-sm mb-2" id="verifyTable">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Rotation</th>
+                                <th>Group #</th>
+                                <th>Skill Level</th>
+                                <th>A-Trained</th>
+                                <th>Transfer</th>
+                                <th>IV-Trained</th>
+                                <th>Role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for nurse in nurseList %}
+                            {% if nurse[-1]==1 %}
+                            <tr>
+                                <td>{{nurse[1]}}</td>
+                                <td>{{nurse[4]}}</td>
+                                <td>{{nurse[5]}}</td>
+                                <td>{{nurse[7]}}</td>
+
+                                {% if nurse[8]==0 %}
+                                <td>No</td>
+                                {% else %}
+                                <td>Yes</td>
+                                {% endif %}
+
+                                {% if nurse[9]==0 %}
+                                <td>No</td>
+                                {% else %}
+                                <td>Yes</td>
+                                {% endif %}
+
+                                {% if nurse[10]==0 %}
+                                <td>No</td>
+                                {% else %}
+                                <td>Yes</td>
+                                {% endif %}
+
+                                <td>{{nurse[11]}}</td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <!--Current Shift Assignment-->
+                    <hr>
+                    <div class="col-3">
+                        <h6>Current Shift Assignments</h6>
+                        <select class="form-control" size="8">
+                            {% for nurse in nurseList %}
+                            {% if (nurse[-1]==1) and (nurse[11]=="Charge") %}
+                            <option class="table-success" id="{{nurse[0]}}" name="{{nurse[0]}}" value="{{nurse[0]}}">
+                                {{nurse[1]}}</option>
+                            {% elif (nurse[-1]==1) and (nurse[11]=="Support") %}
+                            <option class="table-warning" id="{{nurse[0]}}" name="{{nurse[0]}}" value="{{nurse[0]}}">
+                                {{nurse[1]}}</option>
+                            {% elif (nurse[-1]==1) %}
+                            <option id="{{nurse[0]}}" name="{{nurse[0]}}" value="{{nurse[0]}}">{{nurse[1]}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <!--Charge Nurse Assignemnts-->
+                    <div class="col-3">
+                        <h6>Charge Nurses + Backups</h6>
+                        <select class="form-control" size="8">
+                            {% for nurse in nurseList %}
+                            {% if (nurse[-1]==1) and (nurse[11]=="Charge") %}
+                            <option class="table-success" id="{{nurse[0]}}" name="{{nurse[0]}}" value="{{nurse[0]}}">
+                                {{nurse[1]}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <!--Support Nurse Assignments-->
+                    <div class="col-3">
+                        <h6>Support Nurses + Backups</h6>
+                        <select class="form-control" size="8">
+                            {% for nurse in nurseList %}
+                            {% if (nurse[-1]==1) and (nurse[11]=="Support") %}
+                            <option class="table-warning" id="{{nurse[0]}}" name="{{nurse[0]}}" value="{{nurse[0]}}">
+                                {{nurse[1]}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <!--Code Nurse Assignments-->
+                    <div class="col-3">
+                        <h6>Code Nurses + Backups</h6>
+                        <select class="form-control" size="8">
+                            {% for nurse in nurseList %}
+                            {% if (nurse[-1]==1) and (nurse[11]=="Code") %}
+                            <option class="table-danger" id="{{nurse[0]}}" name="{{nurse[0]}}" value="{{nurse[0]}}">
+                                {{nurse[1]}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <hr>
+                <div>
+                    <h6>If you see any errors or inconsistencies:</h6>
+                    <button class="btn btn-outline-custom mb-2" data-toggle="modal" data-target="#currAssignmentModal"
+                        data-dismiss="modal">Edit Current Shift</button><br>
+                    <button class="btn btn-outline-custom" data-toggle="modal" data-target="#cnSuppAssignmentModal"
+                        data-dismiss="modal">Edit Advanced Roles</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="/assign" value=""><button class="btn btn_create_custom">Run Scheduler</button></a>
+                <button class="btn btn-secondary" data-dismiss="modal" aria-label="Close">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Quick Links-->
+<div id="quickLinks" class="quick-links" onclick="toggleQuicklinks()">
+    <div class="quick-link-tab-container">
+        <img id="quickLinksIcon" class="quick-link-tab-icon" src="/images/quicklinks-icon.png">
+    </div>
+    <div id="quicklinksContent" class="quick-links-content">
+        <a href="#" data-toggle="modal" data-target=".createPatientModalCenter">
+            <img class="quick-link-icons" height="70px" src="/images/add-patient-icon.png"><br>Add Patient</a>
+        <a href="#" data-toggle="modal" data-target=".createNurseModalCenter"><img class="quick-link-icons"
+                height="70px" src="/images/add-nurse-icon.png"><br>Add Nurse</a>
+        <a href="#" onclick="printExternal('/currentCAASheet')"><img class="quick-link-icons" height="70px"
+                src="/images/print-icon.png"><br>Print Current<br>CA Sheet</a>
+        <a href="#" onclick="printExternal('/currentPNSheet')"><img class="quick-link-icons" height="70px"
+                src="/images/print-icon.png"><br>Print Current<br>P/N Sheet</a>
+    </div>
+</div>
+
+
+<!-- Create Nurse Modal -->
+<div class="modal fade createNurseModalCenter" id="exampleModalCenter" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Create New Nurse</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="/addNurseRecords" method="post">
+                    <div class="form-group">
+                        <label for="create_nurse_name">Name</label>
+                        <input class="form-control" name="create_nurse_name" id="create_nurse_name" type="text"
+                            placeholder="eg. John Doe" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="col">
+                            <label for="create_nurse_area">Clinical Area</label>
+                            <input id="create_nurse_area" name="create_nurse_area" type="text" class="form-control"
+                                placeholder="eg. A1" required>
+                        </div>
+                        <div class="col">
+                            <label for="create_nurse_rotation">Rotation</label>
+                            <input id="create_nurse_rotation" name="create_nurse_rotation" type="text"
+                                class="form-control" placeholder="eg. A01" required>
+                        </div>
+                        <div class="col">
+                            <label for="create_nurse_group">Group</label>
+                            <input id="create_nurse_group" name="create_nurse_group" type="number" class="form-control"
+                                placeholder="eg. 1" required>
+                        </div>
+                        <div class="col">
+                            <label for="create_nurse_fte">FTE</label>
+                            <input id="create_nurse_fte" name="create_nurse_fte" type="number" min="0" max="1"
+                                step="0.01" class="form-control" placeholder="eg. A01" required>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label>Skill Level</label><br>
+                        <div class="radio-group">
+                            <input type="radio" id="nurse_skill_1" name="create_nurse_skill" value="1" checked>
+                            <label for="nurse_skill_1" class="button-select">1</label>
+
+                            <input type="radio" id="nurse_skill_2" name="create_nurse_skill" value="2">
+                            <label for="nurse_skill_2" class="button-select">2</label>
+
+                            <input type="radio" id="nurse_skill_3" name="create_nurse_skill" value="3">
+                            <label for="nurse_skill_3" class="button-select">3</label>
+
+                            <input type="radio" id="nurse_skill_4" name="create_nurse_skill" value="4">
+                            <label for="nurse_skill_4" class="button-select">4</label>
+
+                            <input type="radio" id="nurse_skill_5" name="create_nurse_skill" value="5">
+                            <label for="nurse_skill_5" class="button-select">5</label>
+                        </div>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="checkbox" name="create_a_trained_toggle" id="create_a_trained_toggle">
+                        <label for="create_a_trained_toggle" class="toggle">A Trained</label>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="checkbox" name="create_transfer_toggle" id="create_transfer_toggle">
+                        <label for="create_transfer_toggle" class="toggle">Transfer</label>
+                    </div>
+                    <div class="mt-3">
+                        <label>Advanced Role</label>
+                        <input style="display: inline-block; visibility: visible; position: relative;" class="ml-5"
+                            type="checkbox" name="L_check_1" id="L_check_1">
+                        <label for="L_check_1">L</label>
+                        <div class="radio-group" style="width: 450px">
+                            <input type="radio" id="create_advanced_role_1" name="create_advanced_role" value="None"
+                                checked>
+                            <label for="create_advanced_role_1" class="button-select">None</label>
+
+                            <input type="radio" id="create_advanced_role_2" name="create_advanced_role" value="Charge">
+                            <label for="create_advanced_role_2" class="button-select">Charge</label>
+
+                            <input type="radio" id="create_advanced_role_3" name="create_advanced_role" value="Support">
+                            <label for="create_advanced_role_3" class="button-select">Support</label>
+
+                            <input type="radio" id="create_advanced_role_4" name="create_advanced_role" value="Code">
+                            <label for="create_advanced_role_4" class="button-select">Code</label>
+                        </div>
+                    </div>
+                    <div class="form-group mt-3">
+                        <div class="form-row">
+                            <div class="col-6">
+                                <input type="checkbox" name="create_iv_toggle" id="create_iv_toggle">
+                                <label for="create_iv_toggle" class="toggle">IV</label>
+                            </div>
+                            <div class="col-6">
+                                <input style="display: inline-block; visibility: visible; position: relative;"
+                                    class="ml-5" type="checkbox" name="L_check_2" id="L_check_2">
+                                <label for="L_check_2">L</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="create_nurse_dta">DTA</label><br>
+                        <textarea id="create_nurse_dta" name="create_nurse_dta" rows="3" class="text_area"
+                            placeholder="Eg. DTA comments"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="create_nurse_comments">Comments</label><br>
+                        <textarea id="create_nurse_comments" name="create_nurse_comments" rows="3" class="text_area"
+                            placeholder="Eg. Additional comments"></textarea>
+                    </div>
+                    <br>
+                    <div class="modal-footer">
+                        <input class="btn btn-success" id="submit_new_nurse" name="submit" type="submit"
+                            value="Confirm">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Patient Modal -->
+<div class="modal fade createPatientModalCenter" id="createModal" tabindex="-1" role="dialog"
+    aria-labelledby="createModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Add Patient</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="/addPatientRecords" method="post">
+                    <div class="form-group">
+                        <label for="create_patient_name">Name</label>
+                        <input class="form-control" id="create_patient_name" name="create_patient_name" type="text"
+                            placeholder="eg. John Doe" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-3">
+                            <label for="create_patient_area">Clinical Area</label>
+                            <input id="create_patient_area" name="create_patient_area" type="text" class="form-control"
+                                placeholder="eg. A" required>
+                        </div>
+                        <div class="col-3 offset-3">
+                            <label for="create_patient_bed_number">Bed Number</label>
+                            <input id="create_patient_bed_number" name="create_patient_bed_number" type="number"
+                                class="form-control" placeholder="eg. 3" required>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label>Acuity Level</label><br>
+                        <div class="radio-group">
+                            <input type="radio" id="acuity_1" name="create_acuity_level" value="1" checked>
+                            <label for="acuity_1" class="button-select">1</label>
+
+                            <input type="radio" id="acuity_2" name="create_acuity_level" value="2">
+                            <label for="acuity_2" class="button-select">2</label>
+
+                            <input type="radio" id="acuity_3" name="create_acuity_level" value="3">
+                            <label for="acuity_3" class="button-select">3</label>
+
+                            <input type="radio" id="acuity_4" name="create_acuity_level" value="4">
+                            <label for="acuity_4" class="button-select">4</label>
+
+                            <input type="radio" id="acuity_5" name="create_acuity_level" value="5">
+                            <label for="acuity_5" class="button-select">5</label>
+                        </div>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="checkbox" name="create_a_trained_toggle" id="create_a_trained_toggle">
+                        <label for="create_a_trained_toggle" class="toggle">A Trained</label>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="checkbox" name="create_transfer_toggle" id="create_transfer_toggle">
+                        <label for="create_transfer_toggle" class="toggle">Transfer</label>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="checkbox" name="create_iv_toggle" id="create_iv_toggle">
+                        <label for="create_iv_toggle" class="toggle">IV</label>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="checkbox" name="create_one_to_one_toggle" id="create_one_to_one_toggle">
+                        <label for="create_one_to_one_toggle" class="toggle">1:1</label>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="checkbox" name="create_twin_toggle" id="create_twin_toggle">
+                        <label for="create_twin_toggle" class="toggle">Twin</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="create_patient_date_admitted">Date Admitted</label><br>
+                        <input type="date" id="create_patient_date_admitted" name="create_patient_date_admitted"
+                            style="border: 1px solid #ced4da;" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="create_patient_comments">Comments</label><br>
+                        <textarea id="create_patient_comments" name="create_patient_comments" rows="3" class="text_area"
+                            placeholder="Eg. Additional comments"></textarea>
+                    </div>
+                    <br>
+                    <div class="modal-footer">
+                        <input class="btn btn_create_custom" id="submit_new_patient" name="submit" type="submit"
+                            value="Confirm">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    var currNurses = null
+    var cNurses = null
+    var supportNurses = null
+    var codeNurses = null
+
+    // Current Shift Assignment Toggle
+    function currShiftToggle(side) {
+        if (side == "right") {
+            var unShiftSelected = $('#full-nurse-list').val();
+            $('#full-nurse-list option:selected').appendTo("#curr-nurse-store")
+
+            for (i = 0; i < unShiftSelected.length; i++) {
+                if (currNurses.includes(unShiftSelected[i])) {
+                    continue
+                } else {
+                    currNurses.push(unShiftSelected[i])
+                }
+            }
+        } else {
+            var currShiftSelected = $('#curr-nurse-store').val();
+            $('#curr-nurse-store option:selected').appendTo("#full-nurse-list")
+
+            for (i = 0; i < currShiftSelected.length; i++) {
+                if (currNurses.includes(currShiftSelected[i])) {
+                    let index = currNurses.indexOf(currShiftSelected[i])
+                    if (index > -1) {
+                        currNurses.splice(index, 1)
+                    }
+                } else {
+                    continue
+                }
+            }
+        }
+    }
+
+    // Charge Nurse Toggle
+    function cnToggle(side) {
+        if (side == "left") {
+            var unShiftSelected = $('#curr-cn').val();
+            $('#curr-cn option:selected').appendTo("#curr-cn-store")
+
+            for (i = 0; i < unShiftSelected.length; i++) {
+                if (cNurses.includes(unShiftSelected[i])) {
+                    continue
+                } else {
+                    cNurses.push(unShiftSelected[i])
+                }
+            }
+        } else {
+            var currShiftSelected = $('#curr-cn-store').val();
+            $('#curr-cn-store option:selected').appendTo("#curr-cn")
+
+            for (i = 0; i < currShiftSelected.length; i++) {
+                if (cNurses.includes(currShiftSelected[i])) {
+                    let index = cNurses.indexOf(currShiftSelected[i])
+                    if (index > -1) {
+                        cNurses.splice(index, 1)
+                    }
+                } else {
+                    continue
+                }
+            }
+        }
+    }
+
+    // Support Nurse Toggle
+    function suppToggle(side) {
+        if (side == "left") {
+            var unShiftSelected = $('#curr-support').val();
+            $('#curr-support option:selected').appendTo("#curr-support-store")
+            for (i = 0; i < unShiftSelected.length; i++) {
+                if (supportNurses.includes(unShiftSelected[i])) {
+                    continue
+                } else {
+                    supportNurses.push(unShiftSelected[i])
+                }
+            }
+        } else {
+            var currShiftSelected = $('#curr-support-store').val();
+            $('#curr-support-store option:selected').appendTo("#curr-support")
+
+            for (i = 0; i < currShiftSelected.length; i++) {
+                if (supportNurses.includes(currShiftSelected[i])) {
+                    let index = supportNurses.indexOf(currShiftSelected[i])
+                    if (index > -1) {
+                        supportNurses.splice(index, 1)
+                    }
+                } else {
+                    continue
+                }
+            }
+        }
+    }
+
+    // Code Nurse Toggle
+    function codeToggle(side) {
+        if (side == "left") {
+            var unShiftSelected = $('#curr-code').val();
+            $('#curr-code option:selected').appendTo("#curr-code-store")
+            for (i = 0; i < unShiftSelected.length; i++) {
+                if (codeNurses.includes(unShiftSelected[i])) {
+                    continue
+                } else {
+                    codeNurses.push(unShiftSelected[i])
+                }
+            }
+        } else {
+            var currShiftSelected = $('#curr-code-store').val();
+            $('#curr-code-store option:selected').appendTo("#curr-code")
+
+            for (i = 0; i < currShiftSelected.length; i++) {
+                if (codeNurses.includes(currShiftSelected[i])) {
+                    let index = codeNurses.indexOf(currShiftSelected[i])
+                    if (index > -1) {
+                        codeNurses.splice(index, 1)
+                    }
+                } else {
+                    continue
+                }
+            }
+        }
+    }
+
+    // Quick Links
+    function toggleQuicklinks() {
+        var quickLinks = document.getElementById("quickLinks");
+        var quickLinksContent = document.getElementById("quicklinksContent");
+        var quickLinksIcon = document.getElementById("quickLinksIcon");
+
+        if (quickLinks.style.width == "200px") {
+            quickLinks.style.width = "20px";
+            quickLinksContent.style.opacity = "0";
+            quickLinksContent.style.visibility = "hidden";
+            quickLinksIcon.style.transform = "translate(0%, -50%) scalex(1)";
+        }
+        else {
+            quickLinks.style.width = "200px";
+            quickLinksContent.style.visibility = "visible";
+            quickLinksContent.style.opacity = "1";
+            quickLinksIcon.style.transform = "translate(0%, -50%) scalex(-1)";
+        }
+    }
+
+    // Event Listeners
+    window.addEventListener('load', (event) => {
+        // Load currNurse array
+        currNurses = "{{currNurseIds}}".split(", ")
+        currNurses[0] = currNurses[0].substring(1, currNurses[0].length)
+        currNurses[currNurses.length - 1] = currNurses[currNurses.length - 1].substring(0, currNurses[currNurses.length - 1].length - 1)
+
+        // Load supportNurses array 
+        supportNurses = "{{suppNursesIds}}".split(", ")
+        supportNurses[0] = supportNurses[0].substring(1, supportNurses[0].length)
+        supportNurses[supportNurses.length - 1] = supportNurses[supportNurses.length - 1].substring(0, supportNurses[supportNurses.length - 1].length - 1)
+
+        // Load cNurses array
+        cNurses = "{{cnNurseIds}}".split(", ")
+        cNurses[0] = cNurses[0].substring(1, cNurses[0].length)
+        cNurses[cNurses.length - 1] = cNurses[cNurses.length - 1].substring(0, cNurses[cNurses.length - 1].length - 1)
+
+        // Load codeNurses array
+        codeNurses = "{{codeNurseIds}}".split(", ")
+        codeNurses[0] = codeNurses[0].substring(1, codeNurses[0].length)
+        codeNurses[codeNurses.length - 1] = codeNurses[codeNurses.length - 1].substring(0, codeNurses[codeNurses.length - 1].length - 1)
+    });
+
+    $("#currNurseSubmit").on("click", (event) => {
+        $("#currNurseSubmit").val(currNurses)
+    })
+
+    $("#cNurseSubmit").on("click", (event) => {
+        $("#codeNurseSubmit").val(codeNurses)
+        $("#suppNurseSubmit").val(supportNurses)
+        $("#cNurseSubmit").val(cNurses)
+    })
+
+    $("#curr-fixed").on('change', function () {
+        $('#fixed-submit').val(this.value)
+    })
+
+    $("#curr-flex").on('change', function () {
+        $('#flex-submit').val(this.value)
+    })
+
+    // Filter Data by Column
+    $(document).ready(function () {
+        // Setup - add a text input to each header cell
+        $('#verifyTable thead tr').clone(true).appendTo('#verifyTable thead');
+        $('#verifyTable thead tr:eq(1) th').each(function (i) {
+            $(this).html('<input class="form-control form-control-sm" type="text" placeholder="Filter..." />');
+            $('input', this).on('keyup change', function () {
+                if (table.column(i).search() !== this.value) {
+                    table
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+
+        var table = $('#verifyTable').DataTable({
+            "lengthMenu": [10, 20, 30, 50],
+            orderCellsTop: true,
+            ordering: true
+        });
+    });
+
+    function printExternal(url) {
+        var printWindow = window.open(url, 'Print', 'left=200, top=200, width=900, height=500, toolbar=0, resizable=0');
+
+        printWindow.addEventListener('load', function () {
+            if (Boolean(printWindow.chrome)) {
+                printWindow.print();
+                setTimeout(function () {
+                    printWindow.close();
+                }, 500);
+            } else {
+                printWindow.print();
+                printWindow.close();
+            }
+        }, true);
+    }
+
+    $(document).ready(function () {
+        var $this, i, filter,
+            $input = $('#fullFilter'),
+            $options = $('#full-nurse-list').find('option'),
+            $input1 = $('#currFilter'),
+            $options1 = $('#curr-nurse-store').find('option')
+
+        $input.keyup(function () {
+            filter = $(this).val();
+            i = 1;
+            $options.each(function () {
+                $this = $(this);
+                $this.removeAttr('selected');
+                if ($this.text().indexOf(filter) != -1) {
+                    $this.show();
+                    if (i == 1) {
+                        $this.attr('selected', 'selected');
+                    }
+                    i++;
+                } else {
+                    $this.hide();
+                }
+            });
+        });
+
+        $input1.keyup(function () {
+            filter = $(this).val();
+            i = 1;
+            $options1.each(function () {
+                $this = $(this);
+                $this.removeAttr('selected');
+                if ($this.text().indexOf(filter) != -1) {
+                    $this.show();
+                    if (i == 1) {
+                        $this.attr('selected', 'selected');
+                    }
+                    i++;
+                } else {
+                    $this.hide();
+                }
+            });
+        });
+    });
+
+</script>
+
+<!--DataTables.js-->
+<script src=https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js></script>
+
+{% endblock %}

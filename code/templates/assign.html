@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!--Content Here-->
+
+{% for id in response %}
+<div class="p-2 mb-1" style="background-color: lightblue;">
+    <h6>Nurse:</h6>
+    {% for nurse in nurseList if nurse[0]==id %}
+    <p>{{nurse[0]}}: {{nurse[1]}}</p>
+    {% endfor %}
+    <h6>Patient(s):</h6>
+    {% for patient_id in response[id]['patients']%}
+    {% for patient in patientList if patient[0]==patient_id %}
+    <p>{{patient[0]}}: {{patient[1]}}
+        ({{patient[2]}}{{patient[3]}})</p>
+    {% endfor %}
+    {% endfor %}
+</div>
+{% endfor %}
+
+{% endblock %}
