@@ -39,8 +39,8 @@ app.secret_key = os.urandom(12).hex()
 
 db = mysql.connector.connect(
     host="localhost",
-    user="charge_nurse",
-    passwd="Password",
+    user="root",
+    passwd="Qwaszx2243",
     database="smartroster",
     auth_plugin="mysql_native_password"
 )
@@ -974,11 +974,15 @@ def current_PNSheet():
         cursor.execute("SELECT * FROM nurses")
         full_nurse_list = cursor.fetchall()
 
-        if os.path.exists("{0}/cache/current_shift/state.json".format(CURR_DIR)):
-            with open("{0}/cache/current_shift/state.json".format(CURR_DIR), 'r') as jsonfile:
+         # if os.path.exists("{0}/cache/current_shift/state.json".format(CURR_DIR)):
+        #     with open("{0}/cache/current_shift/state.json".format(CURR_DIR), 'r') as jsonfile:
+        if os.path.exists("./cache/current_shift/state.json"):
+            with open("./cache/current_shift/state.json", 'r') as jsonfile:
                 state = json.load(jsonfile)
-            if os.path.exists("{0}/cache/current_shift/flags.json".format(CURR_DIR)):
-                with open("{0}/cache/current_shift/flags.json".format(CURR_DIR), 'r') as flagfile:
+            # if os.path.exists("{0}/cache/current_shift/flags.json".format(CURR_DIR)):
+            #     with open("{0}/cache/current_shift/flags.json".format(CURR_DIR), 'r') as flagfile:
+            if os.path.exists("./cache/current_shift/flags.json"):
+                with open("./cache/current_shift/flags.json", 'r') as flagfile:
                     flags = json.load(flagfile)
 
             return render_template("./Assignment Sheets/cur_pnSheetState.html",
@@ -987,11 +991,13 @@ def current_PNSheet():
                                    flags=flags,
                                    nurseList=nurse_list,
                                    patientList=patient_list)
-        elif os.path.exists('{0}/cache/current_shift/curr_assignment.json'.format(CURR_DIR)):
+        # elif os.path.exists('{0}/cache/current_shift/curr_assignment.json'.format(CURR_DIR)):
+        #     with open('./cache/current_shift/curr_assignment.json', 'r') as jsonfile:
+        elif os.path.exists('./cache/current_shift/curr_assignment.json'):
             with open('./cache/current_shift/curr_assignment.json', 'r') as jsonfile:
                 curr_assignment = json.load(jsonfile)
 
-            print(curr_assignment)
+            print('The current assignment is:', curr_assignment)
 
             for nurse_id in curr_assignment:
                 print(nurse_id)
@@ -1021,9 +1027,12 @@ def current_PNSheet():
                 curr_assignment[nurse_id]['bed'] = list_of_beds
 
             # Overwrite curr_assignment.json
+            # os.remove(
+            #     "{0}/cache/current_shift/curr_assignment.json".format(CURR_DIR))
+            # with open("{0}/cache/current_shift/curr_assignment.json".format(CURR_DIR), 'w') as jsonfile:
             os.remove(
-                "{0}/cache/current_shift/curr_assignment.json".format(CURR_DIR))
-            with open("{0}/cache/current_shift/curr_assignment.json".format(CURR_DIR), 'w') as jsonfile:
+                "./cache/current_shift/curr_assignment.json")
+            with open("./cache/current_shift/curr_assignment.json", 'w') as jsonfile:
                 json.dump(curr_assignment, jsonfile)
 
             return render_template("./Assignment Sheets/cur_pnSheet.html",
