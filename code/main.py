@@ -75,7 +75,9 @@ def get_user_pfp():
         return pfp
 
 #### Global Variables ####
-CURR_DIR = os.path.dirname(__file__)
+# CURR_DIR = os.path.dirname(__file__)
+CURR_DIR =os.path.dirname(os.path.abspath(__file__))
+
 AREA_LIST = ["A", "B", "C", "D", "E", "F"]
 MAX_BED = 14
 # Headers
@@ -92,6 +94,7 @@ NURSE_HEADERS = ["ID", "Name", "Clinical Area", "Rotation", "Group", "FTE",
 
 @app.route("/")
 def home():
+    print("Current Path: ", CURR_DIR)
     """ Displays the home page """
     if 'loggedin' in session:
         curr_nurse_ids = []
