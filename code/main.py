@@ -40,7 +40,7 @@ app.secret_key = os.urandom(12).hex()
 db = mysql.connector.connect(
     host="localhost",
     user="root",
-    passwd="Qwaszx2243",
+    passwd="MyNewPassword",
     database="smartroster",
     auth_plugin="mysql_native_password"
 )
@@ -66,7 +66,8 @@ def inject_pfp():
 
 def get_user_pfp():
     if 'loggedin' in session:
-        cursor.execute('SELECT * FROM users WHERE username = %s', (session['username'],))
+        cursor.execute('SELECT * FROM users WHERE username = %s',
+                       (session['username'],))
         account = cursor.fetchone()
 
         filename = account[5]
@@ -74,9 +75,10 @@ def get_user_pfp():
 
         return pfp
 
+
 #### Global Variables ####
 # CURR_DIR = os.path.dirname(__file__)
-CURR_DIR =os.path.dirname(os.path.abspath(__file__))
+CURR_DIR = os.path.dirname(os.path.abspath(__file__))
 
 AREA_LIST = ["A", "B", "C", "D", "E", "F"]
 MAX_BED = 14
@@ -235,9 +237,9 @@ def register_user():
             encrypted_password = bcrypt.hashpw(
                 password.encode(), bcrypt.gensalt())
             cursor.execute(
-            "INSERT INTO users (username, password, first_name, last_name, profile_img) "
-            "VALUES (%s, %s, %s, %s, 'base-avatar.png')", (username,
-                                    encrypted_password, first_name, last_name)
+                "INSERT INTO users (username, password, first_name, last_name, profile_img) "
+                "VALUES (%s, %s, %s, %s, 'base-avatar.png')", (username,
+                                                               encrypted_password, first_name, last_name)
             )
             db.commit()
             return redirect(url_for('home'))
@@ -297,6 +299,7 @@ def inject_reference():
     reference = cursor.fetchall()
     return dict(get_reference_data=reference)
 
+
 @app.route("/editReference", methods=["POST"])
 def edit_reference():
 
@@ -309,7 +312,7 @@ def edit_reference():
     transfer = request.form['transfer']
     iv_trained = request.form['iv_trained']
     dta = request.form['dta']
-    advanced_role = request.form['advanced_role']   
+    advanced_role = request.form['advanced_role']
     fixed_ = request.form['fixed']
     flexible = request.form['flexible']
 
@@ -318,15 +321,13 @@ def edit_reference():
 
     arguments = (clinical_area, rotation, group_def, fte,
                  skill_level, a_trained, transfer, iv_trained, advanced_role, dta, fixed_, flexible)
-    
+
     try:
         cursor.execute(query, arguments)
         db.commit()
     except Exception as error:
         return str(error)
     return redirect(url_for('settings'))
-
-
 
 
 # Records
@@ -683,10 +684,11 @@ def upload_image():
             # Remove previous pfp if no one else has it (to reduce storage space needed)
             remove_previous_pfp()
             filename = secure_filename(file.filename)
-            file.save(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename))
+            file.save(os.path.join(app.root_path,
+                                   app.config['UPLOAD_FOLDER'], filename))
             cursor.execute(
-            'UPDATE smartroster.users SET profile_img = %s WHERE username = %s',
-            (filename, session['username'],))
+                'UPDATE smartroster.users SET profile_img = %s WHERE username = %s',
+                (filename, session['username'],))
             db.commit()
             return redirect(url_for('profile',
                                     filename=filename))
@@ -695,7 +697,8 @@ def upload_image():
 
 def remove_previous_pfp():
     """ Removes previous profile picture if no other user has it """
-    cursor.execute('SELECT * FROM users WHERE username = %s', (session['username'],))
+    cursor.execute('SELECT * FROM users WHERE username = %s',
+                   (session['username'],))
     account = cursor.fetchone()
 
     current_pfp = account[5]
@@ -713,7 +716,8 @@ def remove_previous_pfp():
             exists = True
 
     if os.path.exists(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], current_pfp)) and not exists:
-        os.remove(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], current_pfp))
+        os.remove(os.path.join(app.root_path,
+                               app.config['UPLOAD_FOLDER'], current_pfp))
 
 
 @app.route("/changePassword", methods=["POST"])
@@ -737,7 +741,8 @@ def change_password():
             encrypted_password = bcrypt.hashpw(
                 newPassword.encode(), bcrypt.gensalt())
             cursor.execute(
-                'UPDATE users SET password = %s WHERE username = %s', (encrypted_password, session['username'])
+                'UPDATE users SET password = %s WHERE username = %s', (
+                    encrypted_password, session['username'])
             )
             db.commit()
         return redirect(url_for('profile'))
@@ -977,7 +982,7 @@ def current_PNSheet():
         cursor.execute("SELECT * FROM nurses")
         full_nurse_list = cursor.fetchall()
 
-         # if os.path.exists("{0}/cache/current_shift/state.json".format(CURR_DIR)):
+        # if os.path.exists("{0}/cache/current_shift/state.json".format(CURR_DIR)):
         #     with open("{0}/cache/current_shift/state.json".format(CURR_DIR), 'r') as jsonfile:
         if os.path.exists("./cache/current_shift/state.json"):
             with open("./cache/current_shift/state.json", 'r') as jsonfile:
