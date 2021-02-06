@@ -28,15 +28,15 @@
                     <div class="input-group-prepend">
                         <label class="input-group-text" style="width: 140px">Charge Nurse</label>
                     </div>
-                    {% for i in range(3)%}
+                    <!-- {% for i in range(3)%}
                     <select class="form-control" id="cn-assign-form-{{i + 1}}">
-                        {% for id in curr_assignment if curr_assignment[id]['adv']=="Charge" %}
+                        {% for id in curr_assignment if curr_assignment[id]['adv']=="Charge" %} -->
                         <!--{{id}}-->
                         <!--{{curr_assignment[id]['adv']}}-->
-                        {% for nurse in nurseList if nurse[0]==id|int %}
+                        <!-- {% for nurse in nurseList if nurse[0]==id|int %}
                         <option id='cn-assign-{{nurse[0]}}' value='{{nurse[0]}}' data-nurse-name="{{nurse[1]}}"
                             selected>
-                            {{nurse[1]}}</option>
+                            {{nurse}}</option>
                         {% else %}
                         <option id="cn-assign-blank" value="" selected></option>
                         {% endfor %}
@@ -55,6 +55,20 @@
                         {% endif %}
                         {% endfor %}
                     </select>
+                    {% endfor %} -->
+                    {% for i in range(3)%}
+                    <select class="form-control" id="cn-assign-form-{{i+1}}">
+                        {% for id in curr_assignment if curr_assignment[id]['adv']=="Charge" %}
+                        {% for nurse in nurseList if nurse[0]==id|int %}
+                        <option id='cn-assign-{{nurse[0]}}' value='{{nurse[0]}}' data-nurse-name="{{nurse[1]}}"
+                            selected>
+                            {{nurse[1]}}</option>
+                        {% else %}
+                        <option id="cn-assign-blank" value="" selected></option>
+                        {% endfor %}
+                        {% endfor %}
+                        <option id="cn-assign-blank" value=""></option>
+                    </select>
                     {% endfor %}
                 </div>
                 <!--Support Nurse Dropdowns-->
@@ -62,7 +76,7 @@
                     <div class="input-group-prepend">
                         <label class="input-group-text" style="width: 140px">Support Nurse</label>
                     </div>
-                    {% for i in range(3)%}
+                    <!-- {% for i in range(3)%}
                     <select class="form-control" id="support-assign-form-{{i + 1}}">
                         {% for id in curr_assignment if curr_assignment[id]['adv']=="Support" %}
                         {% for nurse in nurseList if nurse[0]==id|int %}
@@ -85,6 +99,20 @@
                             {{nurse[1]}}</option>
                         {% endif %}
                         {% endfor %}
+                    </select>
+                    {% endfor %} -->
+                    {% for i in range(3)%}
+                    <select class="form-control" id="support-assign-form-{{i + 1}}">
+                        {% for id in curr_assignment if curr_assignment[id]['adv']=="Support" %}
+                        {% for nurse in nurseList if nurse[0]==id|int %}
+                        <option id='support-assign-{{nurse[0]}}' value='{{nurse[0]}}' data-nurse-name="{{nurse[1]}}"
+                            selected>
+                            {{nurse[1]}}</option>
+                        {% else %}
+                        <option id="support-assign-blank" value="" selected></option>
+                        {% endfor %}
+                        {% endfor %}
+                        <option id="support-assign-blank" value=""></option>
                     </select>
                     {% endfor %}
                 </div>
