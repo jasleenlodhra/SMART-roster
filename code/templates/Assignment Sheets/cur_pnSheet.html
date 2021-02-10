@@ -123,7 +123,7 @@
                     <div class="input-group-prepend">
                         <label class="input-group-text" style="width: 140px">Code Nurse</label>
                     </div>
-                    <select class="form-control" id="code-assign-form">
+                    <select class="form-control filter" id="code-assign-form">
 
                         {% for id in curr_assignment if curr_assignment[id]['adv']=="Code" %}
                         {% for nurse in nurseList if nurse[0]==id|int %}
@@ -156,7 +156,7 @@
                     <div class="input-group-prepend">
                         <label class="input-group-text" style="width: 140px">L Charge</label>
                     </div>
-                    <select class="form-control" id="lcn-assign-form">
+                    <select class="form-control filter" id="lcn-assign-form">
                         {% for index, nurse in enumerate(nurseList) %}
                         {% if nurse[11] == "L Charge" %}
                         <option id="lcn-assign-{{nurse[0]}}" value="{{nurse[0]}}" selected>{{nurse[1]}}
@@ -171,7 +171,7 @@
                     <div class="input-group-prepend">
                         <label class="input-group-text" style="width: 140px">L Support</label>
                     </div>
-                    <select class="form-control" id="lsupport-assign-form">
+                    <select class="form-control filter" id="lsupport-assign-form">
                         {% for index, nurse in enumerate(nurseList) %}
                         {% if nurse[11] == "L Support" %}
                         <option id="lsupport-assign-{{nurse[0]}}" value="{{nurse[0]}}" selected>
@@ -187,7 +187,7 @@
                     <div class="input-group-prepend">
                         <label class="input-group-text" style="width: 140px">L Code</label>
                     </div>
-                    <select class="form-control" id="lcode-assign-form">
+                    <select class="form-control filter" id="lcode-assign-form">
                         {% for index, nurse in enumerate(nurseList) %}
                         {% if nurse[11] == "L Code" %}
                         <option id="lcode-assign-{{nurse[0]}}" value="{{nurse[0]}}" selected>
@@ -261,7 +261,7 @@
                             <div class="input-group-prepend">
                                 <label class="input-group-text" style="width: 30px;">P</label>
                             </div>
-                            <select class="form-control"
+                            <select class="form-control filter"
                                 id="pod-{{areas[area_iter.value]}}-bed-{{asc_loop + 1}}-patient-menu">
                                 {% for patient in patientList if patient[2]==areas[area_iter.value] and patient[3]==(asc_loop + 1) %}
                                 <option id="pod-{{areas[area_iter.value]}}-bed-{{ asc_loop + 1 }}-p-{{patient[0]}}"
@@ -284,7 +284,7 @@
                             <div class="input-group-prepend">
                                 <label class="input-group-text" style="width: 30px;">N</label>
                             </div>
-                            <select class=" form-control"
+                            <select class="form-control filter"
                                 id="pod-{{areas[area_iter.value]}}-bed-{{asc_loop + 1}}-nurse-menu">
                                 {% for id in curr_assignment %}
                                 {% for bed in curr_assignment[id]['bed']%}
@@ -319,7 +319,7 @@
                             <div class="input-group-prepend">
                                 <label class="input-group-text" style="width: 30px;">P</label>
                             </div>
-                            <select class="form-control"
+                            <select class="form-control filter"
                                 id="pod-{{areas[area_iter.value]}}-bed-{{ desc_loop + 8 }}-patient-menu">
                                 {% for patient in patientList if patient[2]==areas[area_iter.value] and patient[3]==(desc_loop + 8) %}
                                 <option id="pod-{{areas[area_iter.value]}}-bed-{{ desc_loop + 8 }}-p-{{patient[0]}}"
@@ -342,7 +342,7 @@
                             <div class="input-group-prepend">
                                 <label class="input-group-text" style="width: 30px;">N</label>
                             </div>
-                            <select class=" form-control" id="bed-{{ desc_loop + 8 }}-nurse-menu">
+                            <select class="form-control filter" id="bed-{{ desc_loop + 8 }}-nurse-menu">
                                 {% for id in curr_assignment %}
                                 {% for bed in curr_assignment[id]['bed']%}
                                 {% if bed[:1]==areas[area_iter.value] and bed[1:]==((desc_loop + 8)|string) %}
@@ -391,6 +391,11 @@
         head.appendChild(style);
         window.print();
     }
+
+    // Patient/Nurse dropdown filter search
+    $(document).ready(function() {
+    $('.filter').select2();
+    });
 
     // Save State
     $("#saveStateSubmit").on("click", (event) => {
