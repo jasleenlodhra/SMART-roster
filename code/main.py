@@ -40,7 +40,7 @@ app.secret_key = os.urandom(12).hex()
 db = mysql.connector.connect(
     host="localhost",
     user="root",
-    passwd="AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+    passwd="Alienbanana1",
     database="smartroster",
     auth_plugin="mysql_native_password"
 )
