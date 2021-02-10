@@ -1,5 +1,6 @@
 from nurse import Nurse
 from patient import Patient
+from collections import defaultdict
 
 
 def main_assign(cursor) -> dict:
