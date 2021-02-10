@@ -40,7 +40,7 @@ app.secret_key = os.urandom(12).hex()
 db = mysql.connector.connect(
     host="localhost",
     user="root",
-    passwd="MyNewPassword",
+    passwd="Qwaszx2243",
     database="smartroster",
     auth_plugin="mysql_native_password"
 )
@@ -1025,7 +1025,7 @@ def current_PNSheet():
                 curr_assignment[nurse_id]['bed'] = ""  # init bed key
 
                 cursor.execute(
-                    "SELECT * FROM patients WHERE id in ({0})".format(
+                    "SELECT * FROM patients WHERE id in ('{0}')".format(
                         str(curr_assignment[nurse_id]['patients'])[1:-1]))
                 list_of_patients = cursor.fetchall()
 
