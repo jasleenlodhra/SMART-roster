@@ -362,6 +362,11 @@
         window.print();
     }
 
+    // Patient/Nurse dropdown filter search
+    $(document).ready(function() {
+    $('.form-control').select2();
+    });
+
     // Save State
     $("#saveStateSubmit").on("click", (event) => {
         var saveStateData = []
