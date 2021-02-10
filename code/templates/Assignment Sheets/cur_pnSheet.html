@@ -57,19 +57,21 @@
                     </select>
                     {% endfor %} -->
                     {% for i in range(3)%}
-                    <select class="form-control" id="cn-assign-form-{{i+1}}">
+                    <select class="form-control exclusive-menu cn-menu" id="cn-assign-form-{{i+1}}">
                         {% for id in curr_assignment if curr_assignment[id]['adv']=="Charge" %}
-                        {% for nurse in nurseList if nurse[0]==id|int %}
-                        <option id='cn-assign-{{nurse[0]}}' value='{{nurse[0]}}' data-nurse-name="{{nurse[1]}}"
-                            selected>
-                            {{nurse[1]}}</option>
-                        {% else %}
-                        <option id="cn-assign-blank" value="" selected></option>
-                        {% endfor %}
+                            {% for nurse in nurseList if nurse[0]==id|int %}
+                                <option id='cn-assign-{{nurse[0]}}' value='{{nurse[0]}}' data-nurse-name="{{nurse[1]}}" >
+                                    {{nurse[1]}}</option>
+                                {% else %}
+                                <option id='cn-assign-{{nurse[0]}}' value='{{nurse[0]}}' data-nurse-name="{{nurse[1]}}" >
+                                    {{nurse[1]}}</option>
+                            <option id="cn-assign-blank" value=""></option>
+                            {% endfor %}
                         {% endfor %}
                         <option id="cn-assign-blank" value=""></option>
                     </select>
                     {% endfor %}
+                    </select>
                 </div>
                 <!--Support Nurse Dropdowns-->
                 <div class="input-group mb-3 shadow-sm">
@@ -102,7 +104,7 @@
                     </select>
                     {% endfor %} -->
                     {% for i in range(3)%}
-                    <select class="form-control" id="support-assign-form-{{i + 1}}">
+                    <select class="form-control exclusive-menu support-menu" id="support-assign-form-{{i + 1}}">
                         {% for id in curr_assignment if curr_assignment[id]['adv']=="Support" %}
                         {% for nurse in nurseList if nurse[0]==id|int %}
                         <option id='support-assign-{{nurse[0]}}' value='{{nurse[0]}}' data-nurse-name="{{nurse[1]}}"
@@ -404,6 +406,27 @@
         $("#shiftDateData").val($("#shiftDate").val())
 
     })
+
+    $('.exclusive-menu').each(function() {
+        let el = $(this)
+        let idParts = el.attr('id').split('-')
+        let selected = idParts[idParts.length - 1] - 1
+        $(this).find('option').each(function(i, e) { if (i == selected) { $(e).prop('selected', true) }})
+    })
+
+    // $('.exclusive-menu').on('change', function(e){
+    //     let value = $(this).val()
+    //     var otherMenus = $('.exclusive-menu').not($(this))
+    //     otherMenus.each(function(){
+    //         $(this).find('option').each(function(i, e) {
+    //             if ($(e).val() == value) {
+    //                 $(e).prop('disabled', true).prop('selected', false).change()
+    //             } else {
+    //                 $(e).prop('disabled', false).change()
+    //             }
+    //         })
+    //     })
+    // })
 
     // Load Modal Data
     $('#shiftVerifyModal').on('show.bs.modal', function (e) {
