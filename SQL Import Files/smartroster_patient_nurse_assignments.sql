@@ -26,7 +26,7 @@ DROP TABLE IF EXISTS `patient_nurse_assignments`;
 
 CREATE TABLE `smartroster`.`patient_nurse_assignments` (
   `assignment_id` INT NOT NULL AUTO_INCREMENT,
-  `assignment_shift` DATETIME NOT NULL,
+  `assignment_shift` VARCHAR(45) NOT NULL,
   `frn_nurse_id` INT NULL,
   `frn_patient_id` INT NOT NULL,
   PRIMARY KEY (`assignment_id`));
