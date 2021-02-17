@@ -1215,29 +1215,29 @@ def save_current_state():
             ###########################
             # save some information in the assignments to the patient nurse assignments table
 
-            curr_assign_count_query="SELECT count(*) FROM smartroster.patient_nurse_assignments WHERE assignment_shift = '{0}'".format(date_time_obj)
-            cursor.execute(curr_assign_count_query)
-            curr_assign_count=cursor.fetchone()
+            # curr_assign_count_query="SELECT count(*) FROM smartroster.patient_nurse_assignments WHERE assignment_shift = '{0}'".format(date_time_obj)
+            # cursor.execute(curr_assign_count_query)
+            # curr_assign_count=cursor.fetchone()
 
-            if curr_assign_count:
-                cursor.execute("DELETE FROM smartroster.patient_nurse_assignments WHERE assignment_shift = '{0}'".format(date_time_obj))
+            # if curr_assign_count:
+            #     cursor.execute("DELETE FROM smartroster.patient_nurse_assignments WHERE assignment_shift = '{0}'".format(date_time_obj))
 
-            for nurse_id, values in assignments.items():
-                # print(nurse_id, values)
-                for patient in values["patients"]:
+            # for nurse_id, values in assignments.items():
+            #     # print(nurse_id, values)
+            #     for patient in values["patients"]:
 
-                    # query = "INSERT INTO smartroster.patient_nurse_assignments (assignment_id, assignment_shift, frn_nurse_id, frn_patient_id) VALUES({0}, {1}, {2}, {3}) ON DUPLICATE KEY UPDATE assignment_shift={1}, frn_nurse_id={2}, frn_patient_id={3}".format(
-                    #         "NULL",  curr_datetime, nurse_id, patient)
-                    query = "INSERT INTO smartroster.patient_nurse_assignments (assignment_id, assignment_shift, frn_nurse_id, frn_patient_id) "\
-                    " VALUES(%s, %s, %s, %s)"
+            #         # query = "INSERT INTO smartroster.patient_nurse_assignments (assignment_id, assignment_shift, frn_nurse_id, frn_patient_id) VALUES({0}, {1}, {2}, {3}) ON DUPLICATE KEY UPDATE assignment_shift={1}, frn_nurse_id={2}, frn_patient_id={3}".format(
+            #         #         "NULL",  curr_datetime, nurse_id, patient)
+            #         query = "INSERT INTO smartroster.patient_nurse_assignments (assignment_id, assignment_shift, frn_nurse_id, frn_patient_id) "\
+            #         " VALUES(%s, %s, %s, %s)"
 
-                    arguments=(0,  date_time_obj, nurse_id, patient)      
+            #         arguments=(0,  date_time_obj, nurse_id, patient)      
 
-                    try:
-                        cursor.execute(query,arguments)
-                        db.commit()
-                    except Exception as error:
-                        return str(error)
+            #         try:
+            #             cursor.execute(query,arguments)
+            #             db.commit()
+            #         except Exception as error:
+            #             return str(error)
 
             ###########################
 
@@ -1428,6 +1428,40 @@ def save_current_state():
             json.dump(state_assignment_list, jsonfile)
 
         print("State assignment -> ", state_assignment)
+        
+
+        ###########################
+        # save some information in the state_assignment to the patient nurse assignments table
+
+        curr_assign_count_query="SELECT count(*) FROM smartroster.patient_nurse_assignments WHERE assignment_shift = '{0}'".format(date_time_obj)
+        cursor.execute(curr_assign_count_query)
+        curr_assign_count=cursor.fetchone()
+
+        # if current assignment exists in the database
+        if curr_assign_count:
+            cursor.execute("DELETE FROM smartroster.patient_nurse_assignments WHERE assignment_shift = '{0}'".format(date_time_obj))
+
+        # overwrite the new current assignment state into the database
+        for curr_pair in state_assignment['assignment'].values():
+            
+            # print(nurse_id, values)
+            if len(curr_pair["p"]):
+                patient_id = curr_pair["p"][0]
+
+                # query = "INSERT INTO smartroster.patient_nurse_assignments (assignment_id, assignment_shift, frn_nurse_id, frn_patient_id) VALUES({0}, {1}, {2}, {3}) ON DUPLICATE KEY UPDATE assignment_shift={1}, frn_nurse_id={2}, frn_patient_id={3}".format(
+                #         "NULL",  curr_datetime, nurse_id, patient)
+                query = "INSERT INTO smartroster.patient_nurse_assignments (assignment_id, assignment_shift, frn_nurse_id, frn_patient_id) "\
+                " VALUES(%s, %s, %s, %s)"
+
+                arguments=(0,  date_time_obj, curr_pair["n"][0], patient_id)      
+
+                try:
+                    cursor.execute(query,arguments)
+                    db.commit()
+                except Exception as error:
+                    return str(error)
+
+            ###########################
 
         # Write/Overwrite flags.json
         if os.path.exists("{0}/cache/current_shift/flags.json".format(CURR_DIR)):
