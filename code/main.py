@@ -985,6 +985,48 @@ def current_PNSheet():
         # if os.path.exists("{0}/cache/current_shift/state.json".format(CURR_DIR)):
         #     with open("{0}/cache/current_shift/state.json".format(CURR_DIR), 'r') as jsonfile:
         if os.path.exists("./cache/current_shift/state.json"):
+            
+            ########################
+            # read the assignment from the patient_nurse_assignments table
+            with open("./cache/current_shift/state.json", 'r') as statefile:
+                curr_state_assignment=json.load(statefile)[0]
+                # print (curr_state_assignment[0])
+                curr_state_datetime=curr_state_assignment['shift-datetime']
+                old_state_assign_full=curr_state_assignment['assignment']
+
+                # print(curr_state_datetime)
+
+            # use the datetime to find the assignments in db
+            # query="SELECT frn_patient_id,frn_nurse_id FROM smartroster.patient_nurse_assignments " \
+            # "WHERE patient_nurse_assignments.assignment_shift = '{0}'".format(curr_state_datetime)
+
+            # cursor.execute(query)
+            
+
+            # query clinical_area, bed_num, id(patient), name(patient), id(nurse), name(nurse) from patients table and nurses table
+            query="SELECT p.clinical_area, p.bed_num, p.id, p.name,n.id,n.name FROM smartroster.patient_nurse_assignments "\
+            "INNER JOIN smartroster.patients as p ON patient_nurse_assignments.frn_patient_id= p.id "\
+            "INNER JOIN smartroster.nurses as n ON patient_nurse_assignments.frn_nurse_id= n.id "\
+            "WHERE patient_nurse_assignments.assignment_shift = '{0}'".format(curr_state_datetime)
+            
+            cursor.execute(query)
+            new_curr_assign=cursor.fetchall()
+            print('new_curr_assign -> ', new_curr_assign)
+
+
+            # format the data (like 'B1': {'p': ['34', 'Zaine Merritt'], 'n': ['2', 'Holly Baker']})
+            
+            
+
+            
+            # Dump the formatted data into the dict['assignment'] in state.json
+
+
+
+
+            
+            ########################
+
             with open("./cache/current_shift/state.json", 'r') as jsonfile:
                 state = json.load(jsonfile)
             # if os.path.exists("{0}/cache/current_shift/flags.json".format(CURR_DIR)):
@@ -1443,7 +1485,6 @@ def save_current_state():
 
         # overwrite the new current assignment state into the database
         for curr_pair in state_assignment['assignment'].values():
-            
             # print(nurse_id, values)
             if len(curr_pair["p"]):
                 patient_id = curr_pair["p"][0]
