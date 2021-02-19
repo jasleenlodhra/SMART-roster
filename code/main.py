@@ -977,8 +977,8 @@ def current_PNSheet():
         # Grab nurse and patient tables
         cursor.execute("SELECT * FROM nurses WHERE current_shift=1")
         nurse_list = cursor.fetchall()
-        cursor.execute("SELECT * FROM patients WHERE discharged_date='-'")
-        patient_list = cursor.fetchall()
+        # cursor.execute("SELECT * FROM patients WHERE discharged_date='-'")
+        # patient_list = cursor.fetchall()
         cursor.execute("SELECT * FROM nurses")
         full_nurse_list = cursor.fetchall()
 
@@ -1001,12 +1001,23 @@ def current_PNSheet():
             # "WHERE patient_nurse_assignments.assignment_shift = '{0}'".format(curr_state_datetime)
 
             # cursor.execute(query)
+
             
+            # insert new unassigned patient data into the patient_nurse_assignments
+            query = "INSERT INTO smartroster.patient_nurse_assignments(assignment_id,assignment_shift,frn_nurse_id,frn_patient_id) " \
+                "SELECT 0, '{0}', NULL, id FROM smartroster.patients "\
+                "WHERE patients.discharged_date IS NULL and patients.previous_nurses IS NULL".format(curr_state_datetime)
+
+            try:
+                cursor.execute(query)
+                db.commit()
+            except Exception as error:
+                return str(error)
 
             # query clinical_area, bed_num, id(patient), name(patient), id(nurse), name(nurse) from patients table and nurses table
             query="SELECT p.clinical_area, p.bed_num, p.id, p.name,n.id,n.name FROM smartroster.patient_nurse_assignments "\
             "INNER JOIN smartroster.patients as p ON patient_nurse_assignments.frn_patient_id= p.id "\
-            "INNER JOIN smartroster.nurses as n ON patient_nurse_assignments.frn_nurse_id= n.id "\
+            "INNER JOIN smartroster.nurses as n ON patient_nurse_assignments.frn_nurse_id= n.id OR patient_nurse_assignments.frn_nurse_id IS NULL "\
             "WHERE patient_nurse_assignments.assignment_shift = '{0}'".format(curr_state_datetime)
             
             cursor.execute(query)
@@ -1027,8 +1038,17 @@ def current_PNSheet():
             print('new_state_assign_full -> ', new_state_assign_full)
             
             # Dump the formatted data into the dict['assignment'] in state.json
-            
+            curr_state_assignment['assignment']=new_state_assign_full
 
+            with open("./cache/current_shift/state.json", 'w') as statefile:
+                statefile.seek(0) 
+                json.dump([curr_state_assignment],statefile)
+                statefile.truncate()
+
+
+            # grab the patient list
+            cursor.execute("SELECT * FROM patients WHERE discharged_date='-' OR discharged_date IS NULL")
+            patient_list = cursor.fetchall()
 
             
             ########################
