@@ -34,7 +34,7 @@ CREATE TABLE `patients` (
   `one_to_one` tinyint(1) DEFAULT NULL,
   `previous_nurses` varchar(250) DEFAULT NULL,
   `admission_date` varchar(250) DEFAULT NULL,
-  `discharged_date` varchar(250) DEFAULT NULL,
+  `discharged_date` varchar(250) DEFAULT '-',
   `comments` varchar(250) DEFAULT NULL,
   `twin` int DEFAULT NULL,
   PRIMARY KEY (`id`)
