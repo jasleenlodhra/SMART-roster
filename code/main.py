@@ -1,4 +1,6 @@
 from re import template
+
+from flask.wrappers import Response
 from nurse import Nurse
 from patient import Patient
 from assignment import main_assign
@@ -40,7 +42,8 @@ app.secret_key = os.urandom(12).hex()
 db = mysql.connector.connect(
     host="localhost",
     user="root",
-    passwd="Qwaszx2243",
+    # passwd="Qwaszx2243",
+    passwd="MyNewPassword",
     database="smartroster",
     auth_plugin="mysql_native_password"
 )
@@ -564,7 +567,10 @@ def add_patient_records():
     except Exception as error:
         return str(error)
 
-    return redirect(url_for('patient_records'))
+    if 'currentPNSheet' in request.referrer:
+        return redirect(url_for('current_PNSheet'))
+    else:
+        return redirect(url_for('patient_records'))
 
 
 @app.route("/editPatientRecords", methods=["POST"])
@@ -985,6 +991,74 @@ def current_PNSheet():
         # if os.path.exists("{0}/cache/current_shift/state.json".format(CURR_DIR)):
         #     with open("{0}/cache/current_shift/state.json".format(CURR_DIR), 'r') as jsonfile:
         if os.path.exists("./cache/current_shift/state.json"):
+
+            ########################
+            # read the assignment from the patient_nurse_assignments table
+            with open("./cache/current_shift/state.json", 'r') as statefile:
+                curr_state_assignment = json.load(statefile)[0]
+                # print (curr_state_assignment[0])
+                curr_state_datetime = curr_state_assignment['shift-datetime']
+                old_state_assign_full = curr_state_assignment['assignment']
+
+                # print(curr_state_datetime)
+
+            # use the datetime to find the assignments in db
+            # query="SELECT frn_patient_id,frn_nurse_id FROM smartroster.patient_nurse_assignments " \
+            # "WHERE patient_nurse_assignments.assignment_shift = '{0}'".format(curr_state_datetime)
+
+            # cursor.execute(query)
+
+            
+            # insert new unassigned patient data into the patient_nurse_assignments
+            query = "INSERT INTO smartroster.patient_nurse_assignments(assignment_id,assignment_shift,frn_nurse_id,frn_patient_id) " \
+                "SELECT 0, '{0}', NULL, id FROM smartroster.patients "\
+                "WHERE patients.discharged_date = '-' and patients.previous_nurses IS NULL".format(curr_state_datetime)
+
+            try:
+                cursor.execute(query)
+                db.commit()
+            except Exception as error:
+                return str(error)
+
+            # query clinical_area, bed_num, id(patient), name(patient), id(nurse), name(nurse) from patients table and nurses table
+            query="SELECT p.clinical_area, p.bed_num, p.id, p.name,n.id,n.name FROM smartroster.patient_nurse_assignments "\
+            "INNER JOIN smartroster.patients as p ON patient_nurse_assignments.frn_patient_id= p.id "\
+            "INNER JOIN smartroster.nurses as n ON patient_nurse_assignments.frn_nurse_id= n.id OR patient_nurse_assignments.frn_nurse_id IS NULL "\
+            "WHERE patient_nurse_assignments.assignment_shift = '{0}'".format(curr_state_datetime)
+            
+            cursor.execute(query)
+            new_curr_assign=cursor.fetchall()
+            # print('new_curr_assign -> ', new_curr_assign)
+
+            new_state_assign_full={}
+            # format the data (like 'B1': {'p': ['34', 'Zaine Merritt'], 'n': ['2', 'Holly Baker']})
+            for clinical_bed_num in old_state_assign_full.keys():
+                new_state_assign_full[clinical_bed_num]={'p':[],'n':[]}
+                for assignment in new_curr_assign:
+                    new_assign_clinical_bed_num=assignment[0]+str(assignment[1])
+                    if new_assign_clinical_bed_num==clinical_bed_num:
+                        new_state_assign_full[clinical_bed_num]['p']=[str(assignment[2]),assignment[3]]
+                        new_state_assign_full[clinical_bed_num]['n']=[str(assignment[4]),assignment[5]]
+                        break
+            
+            print('new_state_assign_full -> ', new_state_assign_full)
+            
+            # Dump the formatted data into the dict['assignment'] in state.json
+            curr_state_assignment['assignment']=new_state_assign_full
+
+            with open("./cache/current_shift/state.json", 'w') as statefile:
+                statefile.seek(0) 
+                json.dump([curr_state_assignment],statefile)
+                statefile.truncate()
+
+
+            # grab the patient list
+            cursor.execute("SELECT * FROM patients WHERE discharged_date='-'")
+            patient_list = cursor.fetchall()
+
+            
+            ########################
+
             with open("./cache/current_shift/state.json", 'r') as jsonfile:
                 state = json.load(jsonfile)
             # if os.path.exists("{0}/cache/current_shift/flags.json".format(CURR_DIR)):
@@ -1231,7 +1305,7 @@ def save_current_state():
             #         query = "INSERT INTO smartroster.patient_nurse_assignments (assignment_id, assignment_shift, frn_nurse_id, frn_patient_id) "\
             #         " VALUES(%s, %s, %s, %s)"
 
-            #         arguments=(0,  date_time_obj, nurse_id, patient)      
+            #         arguments=(0,  date_time_obj, nurse_id, patient)
 
             #         try:
             #             cursor.execute(query,arguments)
@@ -1428,35 +1502,36 @@ def save_current_state():
             json.dump(state_assignment_list, jsonfile)
 
         print("State assignment -> ", state_assignment)
-        
 
         ###########################
         # save some information in the state_assignment to the patient nurse assignments table
 
-        curr_assign_count_query="SELECT count(*) FROM smartroster.patient_nurse_assignments WHERE assignment_shift = '{0}'".format(date_time_obj)
+        curr_assign_count_query = "SELECT count(*) FROM smartroster.patient_nurse_assignments WHERE assignment_shift = '{0}'".format(
+            date_time_obj)
         cursor.execute(curr_assign_count_query)
-        curr_assign_count=cursor.fetchone()
+        curr_assign_count = cursor.fetchone()
 
         # if current assignment exists in the database
         if curr_assign_count:
-            cursor.execute("DELETE FROM smartroster.patient_nurse_assignments WHERE assignment_shift = '{0}'".format(date_time_obj))
+            cursor.execute(
+                "DELETE FROM smartroster.patient_nurse_assignments WHERE assignment_shift = '{0}'".format(date_time_obj))
 
         # overwrite the new current assignment state into the database
         for curr_pair in state_assignment['assignment'].values():
-            
             # print(nurse_id, values)
+            print(curr_pair)
             if len(curr_pair["p"]):
                 patient_id = curr_pair["p"][0]
 
                 # query = "INSERT INTO smartroster.patient_nurse_assignments (assignment_id, assignment_shift, frn_nurse_id, frn_patient_id) VALUES({0}, {1}, {2}, {3}) ON DUPLICATE KEY UPDATE assignment_shift={1}, frn_nurse_id={2}, frn_patient_id={3}".format(
                 #         "NULL",  curr_datetime, nurse_id, patient)
                 query = "INSERT INTO smartroster.patient_nurse_assignments (assignment_id, assignment_shift, frn_nurse_id, frn_patient_id) "\
-                " VALUES(%s, %s, %s, %s)"
+                    " VALUES(%s, %s, %s, %s)"
 
-                arguments=(0,  date_time_obj, curr_pair["n"][0], patient_id)      
+                arguments = (0,  date_time_obj, curr_pair["n"][0], patient_id)
 
                 try:
-                    cursor.execute(query,arguments)
+                    cursor.execute(query, arguments)
                     db.commit()
                 except Exception as error:
                     return str(error)
