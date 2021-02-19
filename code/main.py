@@ -977,8 +977,8 @@ def current_PNSheet():
         # Grab nurse and patient tables
         cursor.execute("SELECT * FROM nurses WHERE current_shift=1")
         nurse_list = cursor.fetchall()
-        # cursor.execute("SELECT * FROM patients WHERE discharged_date='-'")
-        # patient_list = cursor.fetchall()
+        cursor.execute("SELECT * FROM patients WHERE discharged_date='-'")
+        patient_list = cursor.fetchall()
         cursor.execute("SELECT * FROM nurses")
         full_nurse_list = cursor.fetchall()
 
@@ -1512,6 +1512,7 @@ def save_current_state():
         # overwrite the new current assignment state into the database
         for curr_pair in state_assignment['assignment'].values():
             # print(nurse_id, values)
+            print(curr_pair)
             if len(curr_pair["p"]):
                 patient_id = curr_pair["p"][0]
 
