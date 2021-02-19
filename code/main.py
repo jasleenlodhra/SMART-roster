@@ -1,4 +1,6 @@
 from re import template
+
+from flask.wrappers import Response
 from nurse import Nurse
 from patient import Patient
 from assignment import main_assign
@@ -565,7 +567,11 @@ def add_patient_records():
     except Exception as error:
         return str(error)
 
-    return redirect(url_for('patient_records'))
+    print(request.referrer)
+    if 'currentPNSheet' in request.referrer:
+        return redirect(url_for('current_PNSheet'))
+    else:
+        return redirect(url_for('patient_records'))
 
 
 @app.route("/editPatientRecords", methods=["POST"])
