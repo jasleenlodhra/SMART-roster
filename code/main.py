@@ -1011,17 +1011,23 @@ def current_PNSheet():
             
             cursor.execute(query)
             new_curr_assign=cursor.fetchall()
-            print('new_curr_assign -> ', new_curr_assign)
+            # print('new_curr_assign -> ', new_curr_assign)
 
-
+            new_state_assign_full={}
             # format the data (like 'B1': {'p': ['34', 'Zaine Merritt'], 'n': ['2', 'Holly Baker']})
+            for clinical_bed_num in old_state_assign_full.keys():
+                new_state_assign_full[clinical_bed_num]={'p':[],'n':[]}
+                for assignment in new_curr_assign:
+                    new_assign_clinical_bed_num=assignment[0]+str(assignment[1])
+                    if new_assign_clinical_bed_num==clinical_bed_num:
+                        new_state_assign_full[clinical_bed_num]['p']=[str(assignment[2]),assignment[3]]
+                        new_state_assign_full[clinical_bed_num]['n']=[str(assignment[4]),assignment[5]]
+                        break
             
-            
-
+            print('new_state_assign_full -> ', new_state_assign_full)
             
             # Dump the formatted data into the dict['assignment'] in state.json
-
-
+            
 
 
             
