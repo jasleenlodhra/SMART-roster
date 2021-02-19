@@ -567,7 +567,6 @@ def add_patient_records():
     except Exception as error:
         return str(error)
 
-    print(request.referrer)
     if 'currentPNSheet' in request.referrer:
         return redirect(url_for('current_PNSheet'))
     else:
