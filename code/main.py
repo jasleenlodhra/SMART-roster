@@ -1008,20 +1008,56 @@ def current_PNSheet():
 
             # cursor.execute(query)
 
+            # insert new unassigned patient data into the patient_nurse_assignments
+            query = "INSERT INTO smartroster.patient_nurse_assignments(assignment_id,assignment_shift,frn_nurse_id,frn_patient_id) " \
+                "SELECT 0, '{0}', NULL, id FROM smartroster.patients "\
+                "WHERE patients.discharged_date = '-' and patients.previous_nurses IS NULL".format(
+                    curr_state_datetime)
+
+            try:
+                cursor.execute(query)
+                db.commit()
+            except Exception as error:
+                return str(error)
+
             # query clinical_area, bed_num, id(patient), name(patient), id(nurse), name(nurse) from patients table and nurses table
             query = "SELECT p.clinical_area, p.bed_num, p.id, p.name,n.id,n.name FROM smartroster.patient_nurse_assignments "\
                 "INNER JOIN smartroster.patients as p ON patient_nurse_assignments.frn_patient_id= p.id "\
-                "INNER JOIN smartroster.nurses as n ON patient_nurse_assignments.frn_nurse_id= n.id "\
+                "INNER JOIN smartroster.nurses as n ON patient_nurse_assignments.frn_nurse_id= n.id OR patient_nurse_assignments.frn_nurse_id IS NULL "\
                 "WHERE patient_nurse_assignments.assignment_shift = '{0}'".format(
                     curr_state_datetime)
 
             cursor.execute(query)
             new_curr_assign = cursor.fetchall()
-            print('new_curr_assign -> ', new_curr_assign)
+            # print('new_curr_assign -> ', new_curr_assign)
 
+            new_state_assign_full = {}
             # format the data (like 'B1': {'p': ['34', 'Zaine Merritt'], 'n': ['2', 'Holly Baker']})
+            for clinical_bed_num in old_state_assign_full.keys():
+                new_state_assign_full[clinical_bed_num] = {'p': [], 'n': []}
+                for assignment in new_curr_assign:
+                    new_assign_clinical_bed_num = assignment[0]+str(
+                        assignment[1])
+                    if new_assign_clinical_bed_num == clinical_bed_num:
+                        new_state_assign_full[clinical_bed_num]['p'] = [
+                            str(assignment[2]), assignment[3]]
+                        new_state_assign_full[clinical_bed_num]['n'] = [
+                            str(assignment[4]), assignment[5]]
+                        break
+
+            print('new_state_assign_full -> ', new_state_assign_full)
 
             # Dump the formatted data into the dict['assignment'] in state.json
+            curr_state_assignment['assignment'] = new_state_assign_full
+
+            with open("./cache/current_shift/state.json", 'w') as statefile:
+                statefile.seek(0)
+                json.dump([curr_state_assignment], statefile)
+                statefile.truncate()
+
+            # grab the patient list
+            cursor.execute("SELECT * FROM patients WHERE discharged_date='-'")
+            patient_list = cursor.fetchall()
 
             ########################
 
@@ -1485,15 +1521,20 @@ def save_current_state():
         # overwrite the new current assignment state into the database
         for curr_pair in state_assignment['assignment'].values():
             # print(nurse_id, values)
+            print(curr_pair)
             if len(curr_pair["p"]):
                 patient_id = curr_pair["p"][0]
+                if len(curr_pair["n"]):
+                    nurse_id = curr_pair["n"][0]
+                else:
+                    nurse_id = None
 
                 # query = "INSERT INTO smartroster.patient_nurse_assignments (assignment_id, assignment_shift, frn_nurse_id, frn_patient_id) VALUES({0}, {1}, {2}, {3}) ON DUPLICATE KEY UPDATE assignment_shift={1}, frn_nurse_id={2}, frn_patient_id={3}".format(
                 #         "NULL",  curr_datetime, nurse_id, patient)
                 query = "INSERT INTO smartroster.patient_nurse_assignments (assignment_id, assignment_shift, frn_nurse_id, frn_patient_id) "\
                     " VALUES(%s, %s, %s, %s)"
 
-                arguments = (0,  date_time_obj, curr_pair["n"][0], patient_id)
+                arguments = (0,  date_time_obj, nurse_id, patient_id)
 
                 try:
                     cursor.execute(query, arguments)
