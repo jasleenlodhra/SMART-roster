@@ -1009,16 +1009,40 @@ def current_PNSheet():
             # cursor.execute(query)
 
             
-            # # insert new unassigned patient data into the patient_nurse_assignments
-            # query = "INSERT INTO smartroster.patient_nurse_assignments(assignment_id,assignment_shift,frn_nurse_id,frn_patient_id) " \
-            #     "SELECT 0, '{0}', NULL, id FROM smartroster.patients "\
-            #     "WHERE patients.discharged_date = '-' and patients.previous_nurses IS NULL".format(curr_state_datetime)
+            # insert new unassigned patient data into the patient_nurse_assignments
+            query = "INSERT INTO smartroster.patient_nurse_assignments(assignment_id,assignment_shift,frn_nurse_id,frn_patient_id) " \
+                "SELECT 0, '{0}', NULL, id FROM smartroster.patients "\
+                "WHERE patients.discharged_date = '-' and patients.previous_nurses IS NULL".format(curr_state_datetime)
+                
 
-            # try:
-            #     cursor.execute(query)
-            #     db.commit()
-            # except Exception as error:
-            #     return str(error)
+            try:
+                cursor.execute(query)
+                db.commit()
+            except Exception as error:
+                return str(error)
+
+            # change the unassigned patient's previous_nurses column to empty list
+            query = "SELECT id FROM patients WHERE patients.previous_nurses IS NULL"
+            cursor.execute(query)
+            unassigned_patient_ids=cursor.fetchall()
+            if len(unassigned_patient_ids):
+                format_strings = ','.join(['%s'] * len(unassigned_patient_ids))
+                args=[]
+                for value in unassigned_patient_ids:
+                    args.append(value[0])
+
+                
+                # update the previous_nurses field
+                query = "UPDATE `smartroster`.`patients` SET `previous_nurses` = '[]' WHERE `id` IN (%s)" % format_strings
+
+                arguments = tuple(args)
+                print(arguments)
+                
+                try:
+                    cursor.execute(query,arguments)
+                    db.commit()
+                except Exception as error:
+                    return str(error)
 
             # query clinical_area, bed_num, id(patient), name(patient), id(nurse), name(nurse) from patients table and nurses table
             query="SELECT p.clinical_area, p.bed_num, p.id, p.name,n.id,n.name FROM smartroster.patient_nurse_assignments "\
@@ -1079,7 +1103,7 @@ def current_PNSheet():
             with open('./cache/current_shift/curr_assignment.json', 'r') as jsonfile:
                 curr_assignment = json.load(jsonfile)
 
-            print('The current assignment is:', curr_assignment)
+            # print('The current assignment is:', curr_assignment)
 
             for nurse_id in curr_assignment:
                 print(nurse_id)
