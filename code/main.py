@@ -42,7 +42,7 @@ app.secret_key = os.urandom(12).hex()
 db = mysql.connector.connect(
     host="localhost",
     user="root",
-    passwd="Qwaszx2243",
+    passwd="",
     # passwd="MyNewPassword",
     database="smartroster",
     auth_plugin="mysql_native_password"
@@ -497,7 +497,7 @@ def delete_nurse_records():
 def patient_records():
     """ Display the patient records page """
     # Grabs all patients
-    cursor.execute("SELECT * FROM patients")
+    cursor.execute("SELECT * FROM patients WHERE discharged_date ='-'")
     patient_list = cursor.fetchall()
     return render_template(
         "./Records/patientRecord.html",
@@ -505,6 +505,7 @@ def patient_records():
         patientList=patient_list,
         patientHeaders=PATIENT_HEADERS
     )
+
 
 
 @app.route("/addPatientRecords", methods=["POST"])
@@ -652,6 +653,163 @@ def delete_patient_records():
         return str(error)
     return redirect(url_for('patient_records'))
 
+@app.route("/patientArchives", methods=["GET"])
+def patient_archives():
+    """ Display the patient archives page """
+    # Grabs all patients
+    cursor.execute("SELECT * FROM patients WHERE NOT discharged_date ='-'")
+    patient_list = cursor.fetchall()
+    return render_template(
+        "./Records/patientArchives.html",
+        loggedin=session['loggedin'],
+        patientList=patient_list,
+        patientHeaders=PATIENT_HEADERS
+    )
+
+@app.route("/addPatientArchives", methods=["POST"])
+def add_patient_archives():
+    """ Add to the patient records """
+    # Checks for required fields
+
+    patient_name = request.form['create_patient_name']
+    patient_clinical_area = request.form['create_patient_area']
+    patient_bed = request.form['create_patient_bed_number']
+    patient_acuity = request.form['create_acuity_level']
+    try:
+        patient_a_trained = request.form['create_a_trained_toggle']
+        patient_a_trained = 1
+
+    except:
+        patient_a_trained = 0
+
+    try:
+        patient_transfer = request.form['create_transfer_toggle']
+        patient_transfer = 1
+
+    except:
+        patient_transfer = 0
+
+    try:
+        patient_iv = request.form['create_iv_toggle']
+        patient_iv = 1
+
+    except:
+        patient_iv = 0
+
+    try:
+        patient_one_to_one = request.form['create_one_to_one_toggle']
+        patient_one_to_one = 1
+
+    except:
+        patient_one_to_one = 0
+
+    try:
+        patient_twin = request.form['create_twin_toggle']
+        patient_twin = 1
+
+    except:
+        patient_twin = 0
+
+    patient_date_admitted = request.form['create_patient_date_admitted']
+    patient_comments = request.form['create_patient_comments']
+
+    query = "insert into smartroster.patients(name, clinical_area, bed_num, acuity, a_trained, transfer, iv, one_to_one, admission_date, comments, twin )" \
+            "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+
+    arguments = (patient_name, patient_clinical_area, patient_bed, patient_acuity,
+                 patient_a_trained, patient_transfer, patient_iv, patient_one_to_one,
+                 patient_date_admitted, patient_comments, patient_twin)
+
+    try:
+        cursor.execute(query, arguments)
+        db.commit()
+    except Exception as error:
+        return str(error)
+
+    if 'currentPNSheet' in request.referrer:
+        return redirect(url_for('current_PNSheet'))
+    else:
+        return redirect(url_for('patient_archives'))
+
+
+@app.route("/editPatientArchives", methods=["POST"])
+def edit_patient_archives():
+    """ Edit the patient records """
+    # Grabs discharge data so it knows if the patient has been discharged
+
+    patientid = request.form['edit_patient_id']
+    patient_name = request.form['edit_patient_name']
+    patient_clinical_area = request.form['edit_patient_area']
+    patient_bed = request.form['edit_patient_bed_number']
+    patient_acuity = request.form['edit_acuity_level']
+    try:
+        patient_a_trained = request.form['edit_a_trained_toggle']
+        patient_a_trained = 1
+
+    except:
+        patient_a_trained = 0
+    try:
+        patient_transfer = request.form['edit_transfer_toggle']
+        patient_transfer = 1
+
+    except:
+        patient_transfer = 0
+
+    try:
+        patient_iv = request.form['edit_iv_toggle']
+        patient_iv = 1
+
+    except:
+        patient_iv = 0
+
+    try:
+        patient_one_to_one = request.form['edit_one_to_one_toggle']
+        patient_one_to_one = 1
+
+    except:
+        patient_one_to_one = 0
+
+    try:
+        patient_twin = request.form['edit_twin_toggle']
+        patient_twin = 1
+
+    except:
+        patient_twin = 0
+    patient_date_admitted = request.form['edit_date_admitted']
+    patient_date_discharged = request.form['edit_date_discharged']
+    patient_comments = request.form['edit_comments']
+
+    query = "UPDATE smartroster.patients SET name = %s, clinical_area = %s, bed_num = %s, acuity = %s, a_trained = %s, " \
+            " transfer = %s, iv = %s, one_to_one = %s, admission_date = %s, discharged_date = %s, comments = %s, twin = %s WHERE id = %s"
+
+    arguments = (patient_name, patient_clinical_area, patient_bed, patient_acuity, patient_a_trained, patient_transfer,
+                 patient_iv, patient_one_to_one, patient_date_admitted,
+                 patient_date_discharged, patient_comments, patient_twin, patientid)
+
+    try:
+        cursor.execute(query, arguments)
+        db.commit()
+    except Exception as error:
+        return str(error)
+
+    return redirect(url_for('patient_archives'))
+
+
+@app.route("/deletePatientArchives", methods=["POST"])
+def delete_patient_archives():
+    """ Delete from patient records """
+    # grabs patient id
+    patient_id = request.form['remove_patient_id']
+
+    query = "DELETE FROM smartroster.patients WHERE id = %s" % \
+            (patient_id)
+
+    try:
+        cursor.execute(query)
+        db.commit()
+    except Exception as error:
+        return str(error)
+    return redirect(url_for('patient_archives'))
 
 @app.route("/profile", methods=['GET'])
 def profile():
