@@ -1008,7 +1008,6 @@ def current_PNSheet():
 
             # cursor.execute(query)
 
-            
             # insert new unassigned patient data into the patient_nurse_assignments
             query = "INSERT INTO smartroster.patient_nurse_assignments(assignment_id,assignment_shift,frn_nurse_id,frn_patient_id) " \
                 "SELECT 0, '{0}', NULL, id FROM smartroster.patients "\
@@ -1045,42 +1044,44 @@ def current_PNSheet():
                     return str(error)
 
             # query clinical_area, bed_num, id(patient), name(patient), id(nurse), name(nurse) from patients table and nurses table
-            query="SELECT p.clinical_area, p.bed_num, p.id, p.name,n.id,n.name FROM smartroster.patient_nurse_assignments "\
-            "INNER JOIN smartroster.patients as p ON patient_nurse_assignments.frn_patient_id= p.id "\
-            "INNER JOIN smartroster.nurses as n ON patient_nurse_assignments.frn_nurse_id= n.id OR patient_nurse_assignments.frn_nurse_id IS NULL "\
-            "WHERE patient_nurse_assignments.assignment_shift = '{0}'".format(curr_state_datetime)
-            
+            query = "SELECT p.clinical_area, p.bed_num, p.id, p.name,n.id,n.name FROM smartroster.patient_nurse_assignments "\
+                "INNER JOIN smartroster.patients as p ON patient_nurse_assignments.frn_patient_id= p.id "\
+                "INNER JOIN smartroster.nurses as n ON patient_nurse_assignments.frn_nurse_id= n.id OR patient_nurse_assignments.frn_nurse_id IS NULL "\
+                "WHERE patient_nurse_assignments.assignment_shift = '{0}'".format(
+                    curr_state_datetime)
+
             cursor.execute(query)
-            new_curr_assign=cursor.fetchall()
+            new_curr_assign = cursor.fetchall()
             # print('new_curr_assign -> ', new_curr_assign)
 
-            new_state_assign_full={}
+            new_state_assign_full = {}
             # format the data (like 'B1': {'p': ['34', 'Zaine Merritt'], 'n': ['2', 'Holly Baker']})
             for clinical_bed_num in old_state_assign_full.keys():
-                new_state_assign_full[clinical_bed_num]={'p':[],'n':[]}
+                new_state_assign_full[clinical_bed_num] = {'p': [], 'n': []}
                 for assignment in new_curr_assign:
-                    new_assign_clinical_bed_num=assignment[0]+str(assignment[1])
-                    if new_assign_clinical_bed_num==clinical_bed_num:
-                        new_state_assign_full[clinical_bed_num]['p']=[str(assignment[2]),assignment[3]]
-                        new_state_assign_full[clinical_bed_num]['n']=[str(assignment[4]),assignment[5]]
+                    new_assign_clinical_bed_num = assignment[0]+str(
+                        assignment[1])
+                    if new_assign_clinical_bed_num == clinical_bed_num:
+                        new_state_assign_full[clinical_bed_num]['p'] = [
+                            str(assignment[2]), assignment[3]]
+                        new_state_assign_full[clinical_bed_num]['n'] = [
+                            str(assignment[4]), assignment[5]]
                         break
-            
+
             print('new_state_assign_full -> ', new_state_assign_full)
-            
+
             # Dump the formatted data into the dict['assignment'] in state.json
-            curr_state_assignment['assignment']=new_state_assign_full
+            curr_state_assignment['assignment'] = new_state_assign_full
 
             with open("./cache/current_shift/state.json", 'w') as statefile:
-                statefile.seek(0) 
-                json.dump([curr_state_assignment],statefile)
+                statefile.seek(0)
+                json.dump([curr_state_assignment], statefile)
                 statefile.truncate()
-
 
             # grab the patient list
             cursor.execute("SELECT * FROM patients WHERE discharged_date='-'")
             patient_list = cursor.fetchall()
 
-            
             ########################
 
             with open("./cache/current_shift/state.json", 'r') as jsonfile:

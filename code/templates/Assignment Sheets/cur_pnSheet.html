@@ -7,6 +7,13 @@
 <div class="jumbotron py-3">
     <div class="jumbotron-content">
         <div class="row justify-content-md-center">
+            <!-- {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <h2>{{message}}</h2>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %} -->
             <h1 class="jumbotron-title col-11">Patient/Nurse Assignment Page</h1>
         </div>
         <a href="#" onclick="printPage()" style="position: absolute; right: 50px; top: 30px;">
@@ -32,34 +39,6 @@
                     <div class="input-group-prepend">
                         <label class="input-group-text" style="width: 140px">Charge Nurse</label>
                     </div>
-                    <!-- {% for i in range(3)%}
-                    <select class="form-control" id="cn-assign-form-{{i + 1}}">
-                        {% for id in curr_assignment if curr_assignment[id]['adv']=="Charge" %} -->
-                        <!--{{id}}-->
-                        <!--{{curr_assignment[id]['adv']}}-->
-                        <!-- {% for nurse in nurseList if nurse[0]==id|int %}
-                        <option id='cn-assign-{{nurse[0]}}' value='{{nurse[0]}}' data-nurse-name="{{nurse[1]}}"
-                            selected>
-                            {{nurse}}</option>
-                        {% else %}
-                        <option id="cn-assign-blank" value="" selected></option>
-                        {% endfor %}
-                        {% endfor %}
-                        <option id="cn-assign-blank" value=""></option>
-                        {% for index, nurse in enumerate(nurseList) %}
-                        {% if nurse[11] == "Charge" %}
-                        <option class="table-success" id='cn-assign-{{nurse[0]}}' data-nurse-name="{{nurse[1]}}"
-                            value="{{nurse[0]}}">
-                            {{nurse[1]}}
-                        </option>
-                        {% else %}
-                        <option id='cn-assign-{{nurse[0]}}' value="{{nurse[0]}}" data-nurse-name="{{nurse[1]}}">
-                            {{nurse[1]}}
-                        </option>
-                        {% endif %}
-                        {% endfor %}
-                    </select>
-                    {% endfor %} -->
                     {% for i in range(3)%}
                     <select class="form-control exclusive-menu cn-menu" id="cn-assign-form-{{i+1}}">
                         {% for id in curr_assignment if curr_assignment[id]['adv']=="Charge" %}
@@ -82,31 +61,6 @@
                     <div class="input-group-prepend">
                         <label class="input-group-text" style="width: 140px">Support Nurse</label>
                     </div>
-                    <!-- {% for i in range(3)%}
-                    <select class="form-control" id="support-assign-form-{{i + 1}}">
-                        {% for id in curr_assignment if curr_assignment[id]['adv']=="Support" %}
-                        {% for nurse in nurseList if nurse[0]==id|int %}
-                        <option id='support-assign-{{nurse[0]}}' value='{{nurse[0]}}' data-nurse-name="{{nurse[1]}}"
-                            selected>
-                            {{nurse[1]}}</option>
-                        {% else %}
-                        <option id="support-assign-blank" value="" selected></option>
-                        {% endfor %}
-                        {% endfor %}
-                        <option id="support-assign-blank" value=""></option>
-                        {% for index, nurse in enumerate(nurseList) %}
-                        {% if nurse[11] == "Support" %}
-                        <option class="table-warning" id='support-assign-{{nurse[0]}}' data-nurse-name="{{nurse[1]}}"
-                            value="{{nurse[0]}}">
-                            {{nurse[1]}}
-                        </option>
-                        {% else %}
-                        <option id='support-assign-{{nurse[0]}}' data-nurse-name="{{nurse[1]}}" value="{{nurse[0]}}">
-                            {{nurse[1]}}</option>
-                        {% endif %}
-                        {% endfor %}
-                    </select>
-                    {% endfor %} -->
                     {% for i in range(3)%}
                     <select class="form-control exclusive-menu support-menu" id="support-assign-form-{{i + 1}}">
                         {% for id in curr_assignment if curr_assignment[id]['adv']=="Support" %}
@@ -139,18 +93,6 @@
                         {% endfor %}
                         {% endfor %}
                         <option id="code-assign-blank" value=""></option>
-                        <!-- {% for index, nurse in enumerate(nurseList) %}
-                        {% if nurse[11] == "Code" %}
-                        <option class="table-danger" data-nurse-name="{{nurse[1]}}" id='code-assign-{{nurse[0]}}'
-                            value="{{nurse[0]}}">
-                            {{nurse[1]}}
-                        </option>
-                        {% else %}
-                        <option id='code-assign-{{nurse[0]}}' data-nurse-name="{{nurse[1]}}" value="{{nurse[0]}}">
-                            {{nurse[1]}}
-                        </option>
-                        {% endif %}
-                        {% endfor %} -->
                     </select>
                 </div>
             </div>
@@ -504,6 +446,7 @@
 
     })
 
+    // Show Different Nurses in Nurse Fields
     $('.exclusive-menu').each(function() {
         let el = $(this)
         let idParts = el.attr('id').split('-')
@@ -511,6 +454,7 @@
         $(this).find('option').each(function(i, e) { if (i == selected) { $(e).prop('selected', true) }})
     })
 
+    // Disable selected nurses in drop-down
     // $('.exclusive-menu').on('change', function(e){
     //     let value = $(this).val()
     //     var otherMenus = $('.exclusive-menu').not($(this))
