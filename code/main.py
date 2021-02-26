@@ -1521,7 +1521,7 @@ def save_current_state():
         # overwrite the new current assignment state into the database
         for curr_pair in state_assignment['assignment'].values():
             # print(nurse_id, values)
-            print(curr_pair)
+            print("\n", curr_pair)
             if len(curr_pair["p"]):
                 patient_id = curr_pair["p"][0]
                 if len(curr_pair["n"]):
