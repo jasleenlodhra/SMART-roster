@@ -16,32 +16,28 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `patient_nurse_assignments`
+-- Table structure for table `adv_role_assignments`
 --
 
-DROP TABLE IF EXISTS `patient_nurse_assignments`;
+DROP TABLE IF EXISTS `adv_role_assignments`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `patient_nurse_assignments` (
+CREATE TABLE `adv_role_assignments` (
   `assignment_id` int NOT NULL AUTO_INCREMENT,
   `assignment_shift` varchar(45) NOT NULL,
-  `frn_nurse_id` int DEFAULT NULL,
-  `frn_patient_id` int NOT NULL,
-  PRIMARY KEY (`assignment_id`),
-  KEY `frn_nurse_id_idx` (`frn_nurse_id`),
-  KEY `assignments_frn_patient_id_idx` (`frn_patient_id`),
-  CONSTRAINT `assignments_frn_nurse_id` FOREIGN KEY (`frn_nurse_id`) REFERENCES `nurses` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `assignments_frn_patient_id` FOREIGN KEY (`frn_patient_id`) REFERENCES `patients` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  `adv_role` varchar(20) NOT NULL,
+  `nurse_ids` varchar(20) NOT NULL,
+  PRIMARY KEY (`assignment_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `patient_nurse_assignments`
+-- Dumping data for table `adv_role_assignments`
 --
 
-LOCK TABLES `patient_nurse_assignments` WRITE;
-/*!40000 ALTER TABLE `patient_nurse_assignments` DISABLE KEYS */;
-/*!40000 ALTER TABLE `patient_nurse_assignments` ENABLE KEYS */;
+LOCK TABLES `adv_role_assignments` WRITE;
+/*!40000 ALTER TABLE `adv_role_assignments` DISABLE KEYS */;
+/*!40000 ALTER TABLE `adv_role_assignments` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -53,4 +49,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-03-02 20:53:35
+-- Dump completed on 2021-03-02 20:54:56

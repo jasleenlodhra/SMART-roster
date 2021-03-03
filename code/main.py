@@ -42,7 +42,7 @@ app.secret_key = os.urandom(12).hex()
 db = mysql.connector.connect(
     host="localhost",
     user="root",
-    passwd="",
+    passwd="Qwaszx2243",
     # passwd="MyNewPassword",
     database="smartroster",
     auth_plugin="mysql_native_password"
@@ -1685,6 +1685,39 @@ def save_current_state():
             json.dump(state_assignment_list, jsonfile)
 
         print("State assignment -> ", state_assignment)
+
+        ############################
+        # save advanced role assignments to adv_role_assignments table
+        adv_roles=('charge','support','code','l_charge','l_support','l_code')
+
+        curr_adv_roles_assign_count_query = "SELECT count(*) FROM smartroster.adv_role_assignments WHERE assignment_shift = '{0}'".format(
+            date_time_obj)
+        cursor.execute(curr_adv_roles_assign_count_query)
+        curr_adv_roles_assign_count = cursor.fetchone()
+
+        # if current assignment exists in the database
+        if curr_adv_roles_assign_count:
+            cursor.execute(
+                "DELETE FROM smartroster.adv_role_assignments WHERE assignment_shift = '{0}'".format(date_time_obj))
+            
+            db.commit()
+
+        
+        # overwrite the new current assignment state into the database
+        for adv_role in adv_roles:
+            adv_nurse_ids=str(state_assignment[adv_role])
+
+            query = "INSERT INTO smartroster.adv_role_assignments (assignment_id, assignment_shift, adv_role, nurse_ids) "\
+                    " VALUES(%s, %s, %s, %s)"
+
+            arguments = (0,  date_time_obj, adv_role, adv_nurse_ids)
+
+            try:
+                cursor.execute(query, arguments)
+                db.commit()
+            except Exception as error:
+                return str(error)
+        ############################
 
         ###########################
         # save some information in the state_assignment to the patient nurse assignments table
