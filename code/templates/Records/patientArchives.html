@@ -6,7 +6,7 @@
 <!--Jumbotron-->
 <div class="jumbotron py-3">
     <div class="jumbotron-content">
-        <h1>Patient Records</h1>
+        <h1>Patient Archive</h1>
         <br><br>
         <div class="container-fluid">
             <div class="row">
@@ -130,7 +130,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="/addPatientRecords" method="post">
+                <form action="/addPatientArchives" method="post">
                     <div class="form-group">
                         <label for="create_patient_name">Name</label>
                         <input class="form-control" id="create_patient_name" name="create_patient_name" type="text"
@@ -218,7 +218,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="/editPatientRecords" method="post">
+                <form action="/editPatientArchives" method="post">
                     <input id="edit_patient_id" hidden name="edit_patient_id" required="" size="32" type="text" value=""
                         placeholder=""><br>
                     <div class="form-group">
@@ -315,7 +315,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="/deletePatientRecords" method="post">
+                <form action="/deletePatientArchives" method="post">
                     <input id="remove_patient_id" hidden name="remove_patient_id" required="" size="32" type="text"
                         value="" placeholder="">
                     Are you sure you want to delete</p>
