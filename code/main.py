@@ -11,6 +11,7 @@ from flask import Flask, render_template, redirect, url_for, request, session, f
 from werkzeug.utils import secure_filename
 
 from datetime import datetime
+import ast
 
 import json
 import mysql.connector
@@ -1226,7 +1227,23 @@ def current_PNSheet():
                             str(assignment[4]), assignment[5]]
                         break
 
-            print('new_state_assign_full -> ', new_state_assign_full)
+            # print('new_state_assign_full -> ', new_state_assign_full)
+
+            # query adv_role,nurse_ids from adv_role_assignments table
+            query = "SELECT adv_role,nurse_ids FROM smartroster.adv_role_assignments "\
+                "WHERE adv_role_assignments.assignment_shift = '{0}'".format(
+                    curr_state_datetime)
+
+            cursor.execute(query)
+            new_curr_adv_role_assign = cursor.fetchall()
+
+            # Dump the new adv_role_assign into dict[<adv role>] in state.json
+            for (adv_role,nurse_ids) in new_curr_adv_role_assign:
+                # print(adv_role+', ', type(nurse_ids))
+                
+                curr_state_assignment[adv_role]=ast.literal_eval(nurse_ids)
+
+
 
             # Dump the formatted data into the dict['assignment'] in state.json
             curr_state_assignment['assignment'] = new_state_assign_full
