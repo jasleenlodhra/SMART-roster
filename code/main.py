@@ -18,6 +18,8 @@ import os
 import bcrypt
 import shutil
 
+# from jinja import jinja2.ext.do
+
 # test purpose
 import webbrowser
 
@@ -42,13 +44,16 @@ app.secret_key = os.urandom(12).hex()
 db = mysql.connector.connect(
     host="localhost",
     user="root",
-    passwd="",
-    # passwd="MyNewPassword",
+    # passwd="",
+    passwd="MyNewPassword",
     database="smartroster",
     auth_plugin="mysql_native_password"
 )
 
 cursor = db.cursor()
+
+# jinja_env = Environment(extensions=['jinja2.ext.do'])
+# app.jinja_env.add_extension('jinja2.ext.do')
 
 
 @app.context_processor
@@ -507,7 +512,6 @@ def patient_records():
     )
 
 
-
 @app.route("/addPatientRecords", methods=["POST"])
 def add_patient_records():
     """ Add to the patient records """
@@ -653,6 +657,7 @@ def delete_patient_records():
         return str(error)
     return redirect(url_for('patient_records'))
 
+
 @app.route("/patientArchives", methods=["GET"])
 def patient_archives():
     """ Display the patient archives page """
@@ -665,6 +670,7 @@ def patient_archives():
         patientList=patient_list,
         patientHeaders=PATIENT_HEADERS
     )
+
 
 @app.route("/addPatientArchives", methods=["POST"])
 def add_patient_archives():
@@ -810,6 +816,7 @@ def delete_patient_archives():
     except Exception as error:
         return str(error)
     return redirect(url_for('patient_archives'))
+
 
 @app.route("/profile", methods=['GET'])
 def profile():
@@ -1146,6 +1153,17 @@ def current_PNSheet():
         cursor.execute("SELECT * FROM nurses")
         full_nurse_list = cursor.fetchall()
 
+        pn_skill = {}
+        patient_location = ""
+        for patient in patient_list:
+
+            patient_location = patient[2] + str(patient[3])
+            pn_skill[patient_location] = []
+            for nurse in nurse_list:
+                if nurse[7] >= patient[4]:
+                    pn_skill[patient_location].append((nurse[0], nurse[1]))
+        print(pn_skill)
+
         # if os.path.exists("{0}/cache/current_shift/state.json".format(CURR_DIR)):
         #     with open("{0}/cache/current_shift/state.json".format(CURR_DIR), 'r') as jsonfile:
         if os.path.exists("./cache/current_shift/state.json"):
@@ -1169,8 +1187,8 @@ def current_PNSheet():
             # insert new unassigned patient data into the patient_nurse_assignments
             query = "INSERT INTO smartroster.patient_nurse_assignments(assignment_id,assignment_shift,frn_nurse_id,frn_patient_id) " \
                 "SELECT 0, '{0}', NULL, id FROM smartroster.patients "\
-                "WHERE patients.discharged_date = '-' and patients.previous_nurses IS NULL".format(curr_state_datetime)
-                
+                "WHERE patients.discharged_date = '-' and patients.previous_nurses IS NULL".format(
+                    curr_state_datetime)
 
             try:
                 cursor.execute(query)
@@ -1181,22 +1199,21 @@ def current_PNSheet():
             # change the unassigned patient's previous_nurses column to empty list
             query = "SELECT id FROM patients WHERE patients.previous_nurses IS NULL"
             cursor.execute(query)
-            unassigned_patient_ids=cursor.fetchall()
+            unassigned_patient_ids = cursor.fetchall()
             if len(unassigned_patient_ids):
                 format_strings = ','.join(['%s'] * len(unassigned_patient_ids))
-                args=[]
+                args = []
                 for value in unassigned_patient_ids:
                     args.append(value[0])
 
-                
                 # update the previous_nurses field
                 query = "UPDATE `smartroster`.`patients` SET `previous_nurses` = '[]' WHERE `id` IN (%s)" % format_strings
 
                 arguments = tuple(args)
                 print(arguments)
-                
+
                 try:
-                    cursor.execute(query,arguments)
+                    cursor.execute(query, arguments)
                     db.commit()
                 except Exception as error:
                     return str(error)
@@ -1255,6 +1272,7 @@ def current_PNSheet():
                                    state=state[-1],
                                    flags=flags,
                                    nurseList=nurse_list,
+                                   pn_skill=pn_skill,
                                    patientList=patient_list)
         # elif os.path.exists('{0}/cache/current_shift/curr_assignment.json'.format(CURR_DIR)):
         #     with open('./cache/current_shift/curr_assignment.json', 'r') as jsonfile:
@@ -1304,6 +1322,7 @@ def current_PNSheet():
                                    loggedin=session['loggedin'],
                                    curr_assignment=curr_assignment,
                                    nurseList=nurse_list,
+                                   pn_skill=pn_skill,
                                    patientList=patient_list)
         else:
             return render_template("./Assignment Sheets/cur_pnSheet_blank.html",
@@ -1698,9 +1717,8 @@ def save_current_state():
         if curr_assign_count:
             cursor.execute(
                 "DELETE FROM smartroster.patient_nurse_assignments WHERE assignment_shift = '{0}'".format(date_time_obj))
-            
-            db.commit()
 
+            db.commit()
 
         # overwrite the new current assignment state into the database
         for curr_pair in state_assignment['assignment'].values():
@@ -1708,7 +1726,7 @@ def save_current_state():
             print(curr_pair)
             if len(curr_pair["p"]) and len(curr_pair["n"]):
                 patient_id = curr_pair["p"][0]
-                nurse_id=curr_pair["n"][0]
+                nurse_id = curr_pair["n"][0]
 
                 # query = "INSERT INTO smartroster.patient_nurse_assignments (assignment_id, assignment_shift, frn_nurse_id, frn_patient_id) VALUES({0}, {1}, {2}, {3}) ON DUPLICATE KEY UPDATE assignment_shift={1}, frn_nurse_id={2}, frn_patient_id={3}".format(
                 #         "NULL",  curr_datetime, nurse_id, patient)

@@ -273,6 +273,8 @@
 
 {% set areas=["A", "B", "C", "D", "E", "F"] %}
 {% set area_iter = namespace(value=0) %}
+{% set ns = namespace() %}
+{% set ns.location = "" %}
 
 <div class="container-fluid px-5">
     {% for card_row in range(2) %}
@@ -323,6 +325,7 @@
                                 {% for id in curr_assignment %}
                                 {% for bed in curr_assignment[id]['bed']%}
                                 {% if bed[:1]==areas[area_iter.value] and bed[1:]==((asc_loop + 1)|string) %}
+                                {% set ns.location = bed %}
                                 {% for nurse in nurseList if nurse[0]==id|int %}
                                 <option selected
                                     id='pod-{{areas[area_iter.value]}}-bed-{{ asc_loop + 1 }}-n-{{nurse[0]}}'
@@ -334,9 +337,11 @@
                                 {% endfor %}
                                 <option id="pod-{{areas[area_iter.value]}}-bed-{{ asc_loop + 1 }}-n-blank" value="">
                                 </option>
-                                {% for index, nurse in enumerate(nurseList) %}
+                                {% for index, nurse in enumerate(pn_skill[ns.location]) %}
+                                {% for i in range(1) %}
                                 <option id='pod-{{areas[area_iter.value]}}-bed-{{ asc_loop + 1 }}-n-{{nurse[0]}}'
                                     value="{{nurse[0]}}">{{nurse[1]}}</option>
+                                {% endfor %}
                                 {% endfor %}
                             </select>
                         </div>
@@ -380,6 +385,7 @@
                                 {% for id in curr_assignment %}
                                 {% for bed in curr_assignment[id]['bed']%}
                                 {% if bed[:1]==areas[area_iter.value] and bed[1:]==((desc_loop + 8)|string) %}
+                                {% set ns.location = bed %}
                                 {% for nurse in nurseList if nurse[0]==id|int %}
                                 <option selected
                                     id='pod-{{areas[area_iter.value]}}-bed-{{ desc_loop + 8 }}-n-{{nurse[0]}}'
@@ -391,9 +397,11 @@
                                 {% endfor %}
                                 <option id="pod-{{areas[area_iter.value]}}-bed-{{ desc_loop + 8 }}-n-blank" value="">
                                 </option selected>
-                                {% for index, nurse in enumerate(nurseList) %}
+                                {% for index, nurse in enumerate(pn_skill[ns.location]) %}
+                                {% for i in range(1) %}
                                 <option id='pod-{{areas[area_iter.value]}}-bed-{{ desc_loop + 8 }}-n-{{nurse[0]}}'
                                     value="{{nurse[0]}}">{{nurse[1]}}</option>
+                                {% endfor %}
                                 {% endfor %}
                             </select>
                         </div>
