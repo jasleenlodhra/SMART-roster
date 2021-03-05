@@ -11,6 +11,7 @@ from flask import Flask, render_template, redirect, url_for, request, session, f
 from werkzeug.utils import secure_filename
 
 from datetime import datetime
+import ast
 
 import json
 import mysql.connector
@@ -44,7 +45,7 @@ app.secret_key = os.urandom(12).hex()
 db = mysql.connector.connect(
     host="localhost",
     user="root",
-    # passwd="",
+    # passwd="Qwaszx2243",
     passwd="MyNewPassword",
     database="smartroster",
     auth_plugin="mysql_native_password"
@@ -1243,7 +1244,21 @@ def current_PNSheet():
                             str(assignment[4]), assignment[5]]
                         break
 
-            print('new_state_assign_full -> ', new_state_assign_full)
+            # print('new_state_assign_full -> ', new_state_assign_full)
+
+            # query adv_role,nurse_ids from adv_role_assignments table
+            query = "SELECT adv_role,nurse_ids FROM smartroster.adv_role_assignments "\
+                "WHERE adv_role_assignments.assignment_shift = '{0}'".format(
+                    curr_state_datetime)
+
+            cursor.execute(query)
+            new_curr_adv_role_assign = cursor.fetchall()
+
+            # Dump the new adv_role_assign into dict[<adv role>] in state.json
+            for (adv_role, nurse_ids) in new_curr_adv_role_assign:
+                # print(adv_role+', ', type(nurse_ids))
+
+                curr_state_assignment[adv_role] = ast.literal_eval(nurse_ids)
 
             # Dump the formatted data into the dict['assignment'] in state.json
             curr_state_assignment['assignment'] = new_state_assign_full
@@ -1704,6 +1719,39 @@ def save_current_state():
             json.dump(state_assignment_list, jsonfile)
 
         print("State assignment -> ", state_assignment)
+
+        ############################
+        # save advanced role assignments to adv_role_assignments table
+        adv_roles = ('charge', 'support', 'code',
+                     'l_charge', 'l_support', 'l_code')
+
+        curr_adv_roles_assign_count_query = "SELECT count(*) FROM smartroster.adv_role_assignments WHERE assignment_shift = '{0}'".format(
+            date_time_obj)
+        cursor.execute(curr_adv_roles_assign_count_query)
+        curr_adv_roles_assign_count = cursor.fetchone()
+
+        # if current assignment exists in the database
+        if curr_adv_roles_assign_count:
+            cursor.execute(
+                "DELETE FROM smartroster.adv_role_assignments WHERE assignment_shift = '{0}'".format(date_time_obj))
+
+            db.commit()
+
+        # overwrite the new current assignment state into the database
+        for adv_role in adv_roles:
+            adv_nurse_ids = str(state_assignment[adv_role])
+
+            query = "INSERT INTO smartroster.adv_role_assignments (assignment_id, assignment_shift, adv_role, nurse_ids) "\
+                    " VALUES(%s, %s, %s, %s)"
+
+            arguments = (0,  date_time_obj, adv_role, adv_nurse_ids)
+
+            try:
+                cursor.execute(query, arguments)
+                db.commit()
+            except Exception as error:
+                return str(error)
+        ############################
 
         ###########################
         # save some information in the state_assignment to the patient nurse assignments table
