@@ -46,7 +46,7 @@ db = mysql.connector.connect(
     host="localhost",
     user="root",
     # passwd="Qwaszx2243",
-    passwd="MyNewPassword",
+    passwd="",
     database="smartroster",
     auth_plugin="mysql_native_password"
 )
