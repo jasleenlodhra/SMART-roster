@@ -28,7 +28,7 @@ CREATE TABLE `adv_role_assignments` (
   `adv_role` varchar(20) NOT NULL,
   `nurse_ids` varchar(20) NOT NULL,
   PRIMARY KEY (`assignment_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

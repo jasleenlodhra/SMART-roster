@@ -32,7 +32,7 @@ CREATE TABLE `patient_nurse_assignments` (
   KEY `assignments_frn_patient_id_idx` (`frn_patient_id`),
   CONSTRAINT `assignments_frn_nurse_id` FOREIGN KEY (`frn_nurse_id`) REFERENCES `nurses` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `assignments_frn_patient_id` FOREIGN KEY (`frn_patient_id`) REFERENCES `patients` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

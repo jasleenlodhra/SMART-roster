@@ -35,7 +35,7 @@ executeScriptsFromFile('SQLImportFiles/smartroster_nurses.sql')
 executeScriptsFromFile('SQLImportFiles/smartroster_patients.sql')
 executeScriptsFromFile('SQLImportFiles/smartroster_patient_nurse_assignments.sql')
 executeScriptsFromFile('SQLImportFiles/smartroster_users.sql')    
-
+executeScriptsFromFile('SQLImportFiles/smartroster_adv_role_assignments.sql')
 executeScriptsFromFile('SQLImportFiles/smartroster_reference_page.sql')
 conn.commit()
 conn.close()
