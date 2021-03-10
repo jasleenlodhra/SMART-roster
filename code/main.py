@@ -45,8 +45,7 @@ app.secret_key = os.urandom(12).hex()
 db = mysql.connector.connect(
     host="localhost",
     user="root",
-    # passwd="Qwaszx2243",
-    passwd="",
+    # passwd="",
     database="smartroster",
     auth_plugin="mysql_native_password"
 )
@@ -1154,6 +1153,9 @@ def current_PNSheet():
         cursor.execute("SELECT * FROM nurses")
         full_nurse_list = cursor.fetchall()
 
+        # print(nurse_list)
+        # print(patient_list)
+
         pn_skill = {}
         patient_location = ""
         for patient in patient_list:
@@ -1162,7 +1164,14 @@ def current_PNSheet():
             pn_skill[patient_location] = []
             for nurse in nurse_list:
                 if nurse[7] >= patient[4]:
-                    pn_skill[patient_location].append((nurse[0], nurse[1]))
+                    ##########################
+                    # A-trained/ transfer
+                    # The patient requires RN who have both certificates
+                    if nurse[8]>=patient[5] and nurse[9]>=patient[6]:
+                        pn_skill[patient_location].append((nurse[0], nurse[1]))
+                    ##########################
+        
+
         print(pn_skill)
 
         # if os.path.exists("{0}/cache/current_shift/state.json".format(CURR_DIR)):
@@ -1211,7 +1220,7 @@ def current_PNSheet():
                 query = "UPDATE `smartroster`.`patients` SET `previous_nurses` = '[]' WHERE `id` IN (%s)" % format_strings
 
                 arguments = tuple(args)
-                print(arguments)
+                # print(arguments)
 
                 try:
                     cursor.execute(query, arguments)
@@ -1298,7 +1307,7 @@ def current_PNSheet():
             # print('The current assignment is:', curr_assignment)
 
             for nurse_id in curr_assignment:
-                print(nurse_id)
+                # print(nurse_id)
                 # Advanced Role Assignment
                 for nurse in full_nurse_list:
                     if nurse[0] == int(nurse_id):
@@ -1371,8 +1380,8 @@ def past_PNSheet():
                 for version in temp_dict:
                     past_json_versions[i].append(version['timestamp'])
 
-        print(past_json_shifts)
-        print(past_json_versions)
+        # print(past_json_shifts)
+        # print(past_json_versions)
 
         return render_template("./Assignment Sheets/past_pnSheet.html",
                                # Load most recent past assignment
@@ -1718,7 +1727,7 @@ def save_current_state():
             state_assignment_list.append(state_assignment)
             json.dump(state_assignment_list, jsonfile)
 
-        print("State assignment -> ", state_assignment)
+        # print("State assignment -> ", state_assignment)
 
         ############################
         # save advanced role assignments to adv_role_assignments table
@@ -1771,7 +1780,7 @@ def save_current_state():
         # overwrite the new current assignment state into the database
         for curr_pair in state_assignment['assignment'].values():
             # print(nurse_id, values)
-            print(curr_pair)
+            # print(curr_pair)
             if len(curr_pair["p"]) and len(curr_pair["n"]):
                 patient_id = curr_pair["p"][0]
                 nurse_id = curr_pair["n"][0]
@@ -1992,7 +2001,7 @@ def assign_nurse_patient() -> dict:
     #     if p.get_assigned() != 1:
     #         print("Patient", p.get_id(), " is not assigned!")
 
-    print(assignments)
+    # print(assignments)
 
     cursor.execute('SELECT * FROM patients')
     patient_list = cursor.fetchall()
