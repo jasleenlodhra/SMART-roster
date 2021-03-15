@@ -174,7 +174,7 @@
                     <select class="form-control" id="lcode-assign-form">
                         {% if state['l_code'][0] %}
                         {% for nurse in nurseList if nurse[0] == state['l_code'][0]|int %}
-                        <option id="l_code-assign-{{nurse[0]}}" value="{{nurse[0]}}" selected>
+                        <option id="lcode-assign-{{nurse[0]}}" value="{{nurse[0]}}" selected>
                             {{nurse[1]}}
                         </option>
                         {% endfor %}
