@@ -9,11 +9,32 @@ class TestNurse(TestCase):
     def setUp(self):
         """ creates a test fixture before each test method has run """
         self.nurse = Nurse(12, "Jane", "A", 7, "a", 5, 1.1,
-                           0, True, True, False, "charge", "previous", "dta", "comment", True, True, )
+                           0, True, True, False, "charge", "previous", "dta", "comment", True, True)
 
         self.long_str = ""
         for i in range(260):
             self.long_str += "a"
+
+    def test_getters(self):
+        self.assertEqual(self.nurse.get_id(), 12)
+        self.assertEqual(self.nurse.get_name(), "Jane")
+        self.assertEqual(self.nurse.get_clinical_area(), "A")
+        self.assertEqual(self.nurse.get_bed_num(), 7)
+        self.assertEqual(self.nurse.get_rotation(), "a")
+        self.assertEqual(self.nurse.get_group(), 5)
+        self.assertEqual(self.nurse.get_fte(), 1.1)
+        self.assertEqual(self.nurse.get_skill_level(), 0)
+        self.assertEqual(self.nurse.get_a_trained(), True)
+        self.assertEqual(self.nurse.get_transfer(), True)
+        self.assertEqual(self.nurse.get_picc(), False)
+        self.assertEqual(self.nurse.get_advanced_role(), "charge")
+        self.assertEqual(self.nurse.get_previous_patients(), "previous")
+        self.assertEqual(self.nurse.get_dta(), "dta")
+        self.assertEqual(self.nurse.get_comment(), "comment")
+        self.assertEqual(self.nurse.get_priority(), True)
+        self.assertEqual(self.nurse.get_current_shift(), True)
+        self.nurse.set_assigned(True)
+        self.assertEqual(self.nurse.get_assigned(), True)
 
     def test_invalid_id(self):
         """id"""
@@ -182,6 +203,7 @@ class TestNurse(TestCase):
 
     def test_to_dict(self):
         """to_dict"""
+        self.nurse.assigned = True
         self.assertEqual(self.nurse.to_dict(), {"id": 12, "name": "Jane", "clinical_area": "A", "bed_num": 7, "rotation": "a", "fte": 1.1,
                                                 "group": 5, "skill_level": 0, "a_trained": True, "transfer": True, "picc": False, "advanced_role": "charge", "previous_patients": "previous",
-                                                "dta": "dta", "comments": "comment", "priority": True, "current shift": True})
+                                                "dta": "dta", "comments": "comment", "priority": True, "current shift": True, "assigned": True})

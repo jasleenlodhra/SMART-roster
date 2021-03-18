@@ -170,6 +170,9 @@ class Nurse(Base):
         """get group number from nurse"""
         return self.group
 
+    def get_comment(self):
+        return self.comments
+
     # ---------------------------------------------#
     #                  SETTERS                    #
     # ---------------------------------------------#
@@ -203,7 +206,7 @@ class Nurse(Base):
         nurse_dict['comments'] = self.comments
         nurse_dict['priority'] = self.priority
         nurse_dict['current shift'] = self.current_shift
-        # nurse_dict['assigned'] = self.assigned
+        nurse_dict['assigned'] = self.assigned
 
         return nurse_dict
 
