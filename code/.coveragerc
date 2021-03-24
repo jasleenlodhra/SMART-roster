@@ -1,0 +1,7 @@
+[run]
+omit =
+    C:\*
+    ../venv/*
+    tests/*
+    test_nurse.py
+    test_patient.py

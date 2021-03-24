@@ -1167,10 +1167,9 @@ def current_PNSheet():
                     ##########################
                     # A-trained/ transfer
                     # The patient requires RN who have both certificates
-                    if nurse[8]>=patient[5] and nurse[9]>=patient[6]:
+                    if nurse[8] >= patient[5] and nurse[9] >= patient[6]:
                         pn_skill[patient_location].append((nurse[0], nurse[1]))
                     ##########################
-        
 
         # print(pn_skill)
 
