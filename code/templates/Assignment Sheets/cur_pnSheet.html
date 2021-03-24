@@ -447,10 +447,19 @@
             if (selectedList[item].value != "") {
                 saveStateData.push(selectedList[item].id)
             }
+           
         }
         $("#saveStateData").val(JSON.stringify(saveStateData))
         $("#shiftTimeData").val($("#shiftTime").val())
         $("#shiftDateData").val($("#shiftDate").val())
+
+
+        // pop up alert when finding a patient not getting assigned to a nurse
+        
+        // document.getElementById("pod-D-bed-1-nurse-menu").value;
+        // "32"
+        // document.getElementById("pod-D-bed-1-nurse-menu").value;
+        // ""
 
     })
 

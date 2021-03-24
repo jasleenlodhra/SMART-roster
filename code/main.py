@@ -45,6 +45,7 @@ app.secret_key = os.urandom(12).hex()
 db = mysql.connector.connect(
     host="localhost",
     user="root",
+    passwd="Qwaszx2243",
     # passwd="",
     database="smartroster",
     auth_plugin="mysql_native_password"
@@ -1172,7 +1173,7 @@ def current_PNSheet():
                     ##########################
         
 
-        print(pn_skill)
+        # print(pn_skill)
 
         # if os.path.exists("{0}/cache/current_shift/state.json".format(CURR_DIR)):
         #     with open("{0}/cache/current_shift/state.json".format(CURR_DIR), 'r') as jsonfile:
@@ -1421,10 +1422,10 @@ def past_PNSheetState():
                     for version in temp_dict:
                         past_json_versions[i].append(version['timestamp'])
 
-            print(past_json_shifts)
-            print(past_json_versions)
+            # print(past_json_shifts)
+            # print(past_json_versions)
 
-            print(version_select)
+            # print(version_select)
 
             return render_template("./Assignment Sheets/past_pnSheetState.html",
                                    # Load most recent past assignment
@@ -1719,6 +1720,13 @@ def save_current_state():
 
                 flags["{0}{1}".format(area, i + 1)] = flag_list
 
+        # alert when no nurse was assigned to a patient
+        for curr_pair in state_assignment['assignment'].values():
+        
+            if len(curr_pair["p"]) and not len(curr_pair["n"]):
+                print(f'No nurse was assigned to patient {curr_pair["p"][1]}!')
+                return redirect(url_for('current_PNSheet'))
+
         # Write/Overwrite state.json
         if os.path.exists("{0}/cache/current_shift/state.json".format(CURR_DIR)):
             os.remove(
@@ -1777,6 +1785,10 @@ def save_current_state():
 
             db.commit()
 
+
+
+       
+
         # overwrite the new current assignment state into the database
         for curr_pair in state_assignment['assignment'].values():
             # print(nurse_id, values)
@@ -1797,6 +1809,7 @@ def save_current_state():
                     db.commit()
                 except Exception as error:
                     return str(error)
+                
 
             ###########################
         # Write/Overwrite flags.json
