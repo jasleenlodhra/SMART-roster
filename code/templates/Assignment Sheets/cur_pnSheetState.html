@@ -520,7 +520,7 @@
                             <div class="input-group-prepend">
                                 <label class="input-group-text" style="width: 30px;">N</label>
                             </div>
-                            <select class=" form-control" id="bed-{{ desc_loop + 8 }}-nurse-menu">
+                            <select class=" form-control" id="pod-{{areas[area_iter.value]}}-bed-{{ desc_loop + 8 }}-nurse-menu">
                                 {% if state['assignment'][areas[area_iter.value]+( desc_loop + 8 )|string]['n'][0] %}
                                 {% set nurse_id = state['assignment'][areas[area_iter.value]+(desc_loop + 8 )|string]['n'][0] | int %}
                                 {% set ns.location = areas[area_iter.value]+(desc_loop + 8 )|string %}
