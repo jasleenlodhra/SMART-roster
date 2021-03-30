@@ -44,8 +44,8 @@ app.secret_key = os.urandom(12).hex()
 
 db = mysql.connector.connect(
     host="localhost",
-    user="test",
-    passwd="test",
+    user="root",
+    passwd="MyNewPassword",
     database="smartroster",
     auth_plugin="mysql_native_password"
 )
@@ -1720,7 +1720,7 @@ def save_current_state():
 
         # alert when no nurse was assigned to a patient
         for curr_pair in state_assignment['assignment'].values():
-        
+
             if len(curr_pair["p"]) and not len(curr_pair["n"]):
                 print(f'No nurse was assigned to patient {curr_pair["p"][1]}!')
                 return redirect(url_for('current_PNSheet'))
@@ -1783,10 +1783,6 @@ def save_current_state():
 
             db.commit()
 
-
-
-       
-
         # overwrite the new current assignment state into the database
         for curr_pair in state_assignment['assignment'].values():
             # print(nurse_id, values)
@@ -1807,7 +1803,6 @@ def save_current_state():
                     db.commit()
                 except Exception as error:
                     return str(error)
-                
 
             ###########################
         # Write/Overwrite flags.json

@@ -57,7 +57,7 @@ class Patient(Base):
         # Patient._validate_boolean("PICC value", picc)
         self.picc = picc
 
-        Patient._validate_string_250("Previous Nurses", previous_nurses)
+        # Patient._validate_string_250("Previous Nurses", previous_nurses)
         self.previous_nurses = previous_nurses
 
         Patient._validate_string_250("Admission Date", admission_date)
