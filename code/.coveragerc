@@ -1,6 +1,5 @@
 [run]
 omit =
-    C:\*
     ../venv/*
     tests/*
     test_nurse.py
