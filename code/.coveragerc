@@ -6,4 +6,5 @@ omit =
     test_nurse.py
     test_patient.py
     test_main.py
+    test_assignment.py
     base.py
