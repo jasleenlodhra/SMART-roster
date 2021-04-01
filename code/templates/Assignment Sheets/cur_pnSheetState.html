@@ -122,6 +122,26 @@
                         {% endfor %}
                     </select>
                 </div>
+
+                <!-- standby nurses list -->
+                
+                <div class="input-group shadow-sm" style="margin-top: 16px;">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" style="width: 140px">Standby Nurses</label>
+                    </div>
+                    <select class="form-control" id="standby-nurses-list">
+                        {% if state['patientCount']|length %}
+                            
+                            {% for nurse_ID, nurse_count in state['patientCount'].items() if nurse_count[1]|int < 1 %}
+                            <option>{{nurse_count[0]}}</option>
+                            
+                            {% endfor %}
+                            
+                        {% endif %}
+                        
+                        
+                    </select>
+                </div>
             </div>
             <div class="col-4">
                 <!--L Charge Dropdown-->
