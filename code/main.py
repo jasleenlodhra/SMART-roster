@@ -175,7 +175,6 @@ def update_current_nurses():
                 return redirect(url_for('home'))
             except Exception as error:
                 return str(error)
-                return str(error)
     except:
         return str(Exception)
 
