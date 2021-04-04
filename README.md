@@ -55,9 +55,15 @@ The root account credentials are `charge_nurse` and `Password1`.
 - Jimmy Ho
 - Eugene Joy
 - Zachery Johnston
+- John Zhang
 
 **Term 3s**
 - Jaguar Perlas
 - Miguel Capaz
 - Nick Janus
 - Nathan Broyles
+- Zhentian Steven Zhang
+- Qi Dang
+- Jasleen Lodhra
+- Soroosh Azizi
+- Shivar Vishal Pillay
