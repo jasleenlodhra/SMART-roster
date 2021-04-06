@@ -220,23 +220,23 @@ def assign(sorted_eligible_nurses, eligible_max_nurses, assignments, one_to_one,
         # Initialize assignments dict with chosen nurse
         sen_id = sen.get_id()
         if sen_id in eligible_max_nurses:
-            if sen_id not in assignments:
+            if sen_id not in eligible_max_nurses:
                 assignments[sen_id]["num_patients"] = 0
                 assignments[sen_id]["patients"] = []
 
             # If patient has a twin, check if the other twin is also a patient. If so, assign both to the same nurse.
-            if twin == "1":
-                for twin_object in twins:
-                    if p.get_name() == twin_object.get_name():
-                        continue
-                    elif p.get_last_name() == twin_object.get_last_name():
-                        assignments[sen_id]["num_patients"] += 1
-                        assignments[sen_id]["patients"].append(
-                            twin_object.get_id())
-                        twin_object.set_assigned(1)
-                        twins.remove(twin_object)
-                        twins.remove(p)
-                        break
+            # if twin == "1":
+            #     for twin_object in twins:
+            #         if p.get_name() == twin_object.get_name():
+            #             continue
+            #         elif p.get_last_name() == twin_object.get_last_name():
+            #             assignments[sen_id]["num_patients"] += 1
+            #             assignments[sen_id]["patients"].append(
+            #                 twin_object.get_id())
+            #             twin_object.set_assigned(1)
+            #             twins.remove(twin_object)
+            #             twins.remove(p)
+            #             break
 
             # If patient is one_to_one, make that nurse unassignable.
             if one_to_one:
