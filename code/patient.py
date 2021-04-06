@@ -23,9 +23,9 @@ class Patient(Base):
     twin = Column(String(250), nullable=True)
 
     def __init__(self, id: int, name: str, clinical_area: str, bed_num: int,
-                 acuity: int, a_trained: int, transfer: int, picc: int, one_to_one: int,
+                 acuity: int, a_trained: bool, transfer: bool, picc: int, one_to_one: int,
                  previous_nurses: str, admission_date: str, discharge_date: str, comments: str,
-                 twin: int) -> None:
+                 twin: str) -> None:
         """ Validates and Initializes a Patient """
         Patient._validate_positive_integer("Patient ID", id)
         self.id = id
@@ -33,7 +33,10 @@ class Patient(Base):
         Patient._validate_string_250("Name", name)
         self.name = name
 
-        # Patient._validate_string_250("Clinical area", clinical_area)
+        self.first_name = self.name.split(' ')[0]
+        self.last_name = self.name.split(' ')[1]
+
+        Patient._validate_string_250("Clinical area", clinical_area)
         self.clinical_area = clinical_area
 
         Patient._validate_positive_integer("Bed number", bed_num)
@@ -57,16 +60,18 @@ class Patient(Base):
         # Patient._validate_string_250("Previous Nurses", previous_nurses)
         self.previous_nurses = previous_nurses
 
-        # Patient._validate_string_250("Admission Date", admission_date)
+        Patient._validate_string_250("Admission Date", admission_date)
         self.admission_date = admission_date
 
-        # Patient._validate_string_250("Discharge Date", discharge_date)
+        Patient._validate_string_250("Discharge Date", discharge_date)
         self.discharge_date = discharge_date
 
         # Patient._validate_string_250("Twin", twin)
         self.twin = twin
 
         self.assigned = 0
+
+        self.comments = comments
 
     ###############################################
     #                Public Methods               #
@@ -130,9 +135,12 @@ class Patient(Base):
     def get_twin(self) -> bool:
         """get twin of the patient"""
         return self.twin
-    
+
     def get_assigned(self) -> int:
         return self.assigned
+
+    def get_comment(self):
+        return self.comments
 
     # ---------------------------------------------#
     #                  SETTERS                    #
@@ -144,7 +152,7 @@ class Patient(Base):
     def set_previous_nurses(self, previous_nurses) -> None:
         """ set the previous nurses of the patient"""
         self.previous_nurses = previous_nurses
-    
+
     def set_assigned(self, assigned) -> None:
         self.assigned = assigned
 
@@ -184,7 +192,8 @@ class Patient(Base):
         if (str_value == "") or (str_value is None):
             raise ValueError(input_value + " cannot be empty.")
         if len(str_value) > 250:
-            raise ValueError(input_value + " cannot be longer than 250 characters.")
+            raise ValueError(
+                input_value + " cannot be longer than 250 characters.")
 
     @staticmethod
     def _validate_positive_integer(input_value: str, int_value: int) -> None:

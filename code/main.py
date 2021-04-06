@@ -11,12 +11,15 @@ from flask import Flask, render_template, redirect, url_for, request, session, f
 from werkzeug.utils import secure_filename
 
 from datetime import datetime
+import ast
 
 import json
 import mysql.connector
 import os
 import bcrypt
 import shutil
+
+# from jinja import jinja2.ext.do
 
 # test purpose
 import webbrowser
@@ -42,13 +45,15 @@ app.secret_key = os.urandom(12).hex()
 db = mysql.connector.connect(
     host="localhost",
     user="root",
-    passwd="",
-    # passwd="MyNewPassword",
+    passwd="MyNewPassword",
     database="smartroster",
     auth_plugin="mysql_native_password"
 )
 
 cursor = db.cursor()
+
+# jinja_env = Environment(extensions=['jinja2.ext.do'])
+# app.jinja_env.add_extension('jinja2.ext.do')
 
 
 @app.context_processor
@@ -118,6 +123,7 @@ def home():
         # Grab database information
         cursor.execute("SELECT * FROM nurses")
         nurse_list = cursor.fetchall()
+        print(nurse_list)
         cursor.execute("SELECT * FROM patients")
         patient_list = cursor.fetchall()
 
@@ -169,7 +175,6 @@ def update_current_nurses():
                 db.commit()
                 return redirect(url_for('home'))
             except Exception as error:
-                return str(error)
                 return str(error)
     except:
         return str(Exception)
@@ -507,7 +512,6 @@ def patient_records():
     )
 
 
-
 @app.route("/addPatientRecords", methods=["POST"])
 def add_patient_records():
     """ Add to the patient records """
@@ -653,6 +657,7 @@ def delete_patient_records():
         return str(error)
     return redirect(url_for('patient_records'))
 
+
 @app.route("/patientArchives", methods=["GET"])
 def patient_archives():
     """ Display the patient archives page """
@@ -665,6 +670,7 @@ def patient_archives():
         patientList=patient_list,
         patientHeaders=PATIENT_HEADERS
     )
+
 
 @app.route("/addPatientArchives", methods=["POST"])
 def add_patient_archives():
@@ -810,6 +816,7 @@ def delete_patient_archives():
     except Exception as error:
         return str(error)
     return redirect(url_for('patient_archives'))
+
 
 @app.route("/profile", methods=['GET'])
 def profile():
@@ -1146,6 +1153,26 @@ def current_PNSheet():
         cursor.execute("SELECT * FROM nurses")
         full_nurse_list = cursor.fetchall()
 
+        # print(nurse_list)
+        # print(patient_list)
+
+        pn_skill = {}
+        patient_location = ""
+        for patient in patient_list:
+
+            patient_location = patient[2] + str(patient[3])
+            pn_skill[patient_location] = []
+            for nurse in nurse_list:
+                if nurse[7] >= patient[4]:
+                    ##########################
+                    # A-trained/ transfer
+                    # The patient requires RN who have both certificates
+                    if nurse[8] >= patient[5] and nurse[9] >= patient[6]:
+                        pn_skill[patient_location].append((nurse[0], nurse[1]))
+                    ##########################
+
+        # print("pn_skill -> ",pn_skill)
+
         # if os.path.exists("{0}/cache/current_shift/state.json".format(CURR_DIR)):
         #     with open("{0}/cache/current_shift/state.json".format(CURR_DIR), 'r') as jsonfile:
         if os.path.exists("./cache/current_shift/state.json"):
@@ -1169,8 +1196,8 @@ def current_PNSheet():
             # insert new unassigned patient data into the patient_nurse_assignments
             query = "INSERT INTO smartroster.patient_nurse_assignments(assignment_id,assignment_shift,frn_nurse_id,frn_patient_id) " \
                 "SELECT 0, '{0}', NULL, id FROM smartroster.patients "\
-                "WHERE patients.discharged_date = '-' and patients.previous_nurses IS NULL".format(curr_state_datetime)
-                
+                "WHERE patients.discharged_date = '-' and patients.previous_nurses IS NULL".format(
+                    curr_state_datetime)
 
             try:
                 cursor.execute(query)
@@ -1181,22 +1208,21 @@ def current_PNSheet():
             # change the unassigned patient's previous_nurses column to empty list
             query = "SELECT id FROM patients WHERE patients.previous_nurses IS NULL"
             cursor.execute(query)
-            unassigned_patient_ids=cursor.fetchall()
+            unassigned_patient_ids = cursor.fetchall()
             if len(unassigned_patient_ids):
                 format_strings = ','.join(['%s'] * len(unassigned_patient_ids))
-                args=[]
+                args = []
                 for value in unassigned_patient_ids:
                     args.append(value[0])
 
-                
                 # update the previous_nurses field
                 query = "UPDATE `smartroster`.`patients` SET `previous_nurses` = '[]' WHERE `id` IN (%s)" % format_strings
 
                 arguments = tuple(args)
-                print(arguments)
-                
+                # print(arguments)
+
                 try:
-                    cursor.execute(query,arguments)
+                    cursor.execute(query, arguments)
                     db.commit()
                 except Exception as error:
                     return str(error)
@@ -1226,10 +1252,28 @@ def current_PNSheet():
                             str(assignment[4]), assignment[5]]
                         break
 
-            print('new_state_assign_full -> ', new_state_assign_full)
+            # print('new_state_assign_full -> ', new_state_assign_full)
+
+            # query adv_role,nurse_ids from adv_role_assignments table
+            query = "SELECT adv_role,nurse_ids FROM smartroster.adv_role_assignments "\
+                "WHERE adv_role_assignments.assignment_shift = '{0}'".format(
+                    curr_state_datetime)
+
+            cursor.execute(query)
+            new_curr_adv_role_assign = cursor.fetchall()
+
+            # Dump the new adv_role_assign into dict[<adv role>] in state.json
+            for (adv_role, nurse_ids) in new_curr_adv_role_assign:
+                # print(adv_role+', ', type(nurse_ids))
+
+                curr_state_assignment[adv_role] = ast.literal_eval(nurse_ids)
 
             # Dump the formatted data into the dict['assignment'] in state.json
             curr_state_assignment['assignment'] = new_state_assign_full
+
+            curr_state_assignment=refresh_patient_count(curr_state_assignment, nurse_list)
+
+            # print(curr_state_assignment)
 
             with open("./cache/current_shift/state.json", 'w') as statefile:
                 statefile.seek(0)
@@ -1255,6 +1299,7 @@ def current_PNSheet():
                                    state=state[-1],
                                    flags=flags,
                                    nurseList=nurse_list,
+                                   pn_skill=pn_skill,
                                    patientList=patient_list)
         # elif os.path.exists('{0}/cache/current_shift/curr_assignment.json'.format(CURR_DIR)):
         #     with open('./cache/current_shift/curr_assignment.json', 'r') as jsonfile:
@@ -1265,7 +1310,7 @@ def current_PNSheet():
             # print('The current assignment is:', curr_assignment)
 
             for nurse_id in curr_assignment:
-                print(nurse_id)
+                # print(nurse_id)
                 # Advanced Role Assignment
                 for nurse in full_nurse_list:
                     if nurse[0] == int(nurse_id):
@@ -1304,6 +1349,7 @@ def current_PNSheet():
                                    loggedin=session['loggedin'],
                                    curr_assignment=curr_assignment,
                                    nurseList=nurse_list,
+                                   pn_skill=pn_skill,
                                    patientList=patient_list)
         else:
             return render_template("./Assignment Sheets/cur_pnSheet_blank.html",
@@ -1337,8 +1383,8 @@ def past_PNSheet():
                 for version in temp_dict:
                     past_json_versions[i].append(version['timestamp'])
 
-        print(past_json_shifts)
-        print(past_json_versions)
+        # print(past_json_shifts)
+        # print(past_json_versions)
 
         return render_template("./Assignment Sheets/past_pnSheet.html",
                                # Load most recent past assignment
@@ -1378,10 +1424,10 @@ def past_PNSheetState():
                     for version in temp_dict:
                         past_json_versions[i].append(version['timestamp'])
 
-            print(past_json_shifts)
-            print(past_json_versions)
+            # print(past_json_shifts)
+            # print(past_json_versions)
 
-            print(version_select)
+            # print(version_select)
 
             return render_template("./Assignment Sheets/past_pnSheetState.html",
                                    # Load most recent past assignment
@@ -1453,7 +1499,11 @@ def save_current_state():
             "author": session['name'],
             "fixed": fixed[0],
             "flex": flex[0],
-            "id": 0
+            "id": 0,
+
+            # add patient Count of each nurse in current shift
+            "patientCount":{},
+
         }
 
         # Load state history if available
@@ -1676,15 +1726,61 @@ def save_current_state():
 
                 flags["{0}{1}".format(area, i + 1)] = flag_list
 
+        # alert when no nurse was assigned to a patient
+        for curr_pair in state_assignment['assignment'].values():
+
+            if len(curr_pair["p"]) and not len(curr_pair["n"]):
+                print(f'No nurse was assigned to patient {curr_pair["p"][1]}!')
+                return redirect(url_for('current_PNSheet'))
+
+        # count patients for each nurse
+        # increment the patientCount in state
+        state_assignment=refresh_patient_count(state_assignment, nurse_list)
+
+
         # Write/Overwrite state.json
         if os.path.exists("{0}/cache/current_shift/state.json".format(CURR_DIR)):
             os.remove(
                 "{0}/cache/current_shift/state.json".format(CURR_DIR))
-        with open("./cache/current_shift/state.json", 'w') as jsonfile:
+        with open("{0}/cache/current_shift/state.json".format(CURR_DIR), 'w') as jsonfile:
             state_assignment_list.append(state_assignment)
             json.dump(state_assignment_list, jsonfile)
 
+
         print("State assignment -> ", state_assignment)
+
+        ############################
+        # save advanced role assignments to adv_role_assignments table
+        adv_roles = ('charge', 'support', 'code',
+                     'l_charge', 'l_support', 'l_code')
+
+        curr_adv_roles_assign_count_query = "SELECT count(*) FROM smartroster.adv_role_assignments WHERE assignment_shift = '{0}'".format(
+            date_time_obj)
+        cursor.execute(curr_adv_roles_assign_count_query)
+        curr_adv_roles_assign_count = cursor.fetchone()
+
+        # if current assignment exists in the database
+        if curr_adv_roles_assign_count:
+            cursor.execute(
+                "DELETE FROM smartroster.adv_role_assignments WHERE assignment_shift = '{0}'".format(date_time_obj))
+
+            db.commit()
+
+        # overwrite the new current assignment state into the database
+        for adv_role in adv_roles:
+            adv_nurse_ids = str(state_assignment[adv_role])
+
+            query = "INSERT INTO smartroster.adv_role_assignments (assignment_id, assignment_shift, adv_role, nurse_ids) "\
+                    " VALUES(%s, %s, %s, %s)"
+
+            arguments = (0,  date_time_obj, adv_role, adv_nurse_ids)
+
+            try:
+                cursor.execute(query, arguments)
+                db.commit()
+            except Exception as error:
+                return str(error)
+        ############################
 
         ###########################
         # save some information in the state_assignment to the patient nurse assignments table
@@ -1698,17 +1794,16 @@ def save_current_state():
         if curr_assign_count:
             cursor.execute(
                 "DELETE FROM smartroster.patient_nurse_assignments WHERE assignment_shift = '{0}'".format(date_time_obj))
-            
-            db.commit()
 
+            db.commit()
 
         # overwrite the new current assignment state into the database
         for curr_pair in state_assignment['assignment'].values():
             # print(nurse_id, values)
-            print(curr_pair)
+            # print(curr_pair)
             if len(curr_pair["p"]) and len(curr_pair["n"]):
                 patient_id = curr_pair["p"][0]
-                nurse_id=curr_pair["n"][0]
+                nurse_id = curr_pair["n"][0]
 
                 # query = "INSERT INTO smartroster.patient_nurse_assignments (assignment_id, assignment_shift, frn_nurse_id, frn_patient_id) VALUES({0}, {1}, {2}, {3}) ON DUPLICATE KEY UPDATE assignment_shift={1}, frn_nurse_id={2}, frn_patient_id={3}".format(
                 #         "NULL",  curr_datetime, nurse_id, patient)
@@ -1926,7 +2021,7 @@ def assign_nurse_patient() -> dict:
     #     if p.get_assigned() != 1:
     #         print("Patient", p.get_id(), " is not assigned!")
 
-    print(assignments)
+    # print(assignments)
 
     cursor.execute('SELECT * FROM patients')
     patient_list = cursor.fetchall()
@@ -1973,6 +2068,29 @@ def assign_nurse_patient() -> dict:
 # @app.route('/flag', methods=['GET'])
 # def assign_nurse_patient() -> dict:
 
+def refresh_patient_count(state_assignment, nurse_list):
+    # count patients for each nurse
+    # increment the patientCount in state
+    
+    # initialize the patientCount
+    state_assignment['patientCount']={}
+    for curr_pair in state_assignment['assignment'].values():
+
+        if len(curr_pair["p"]) and len(curr_pair["n"]):
+            nurse_id=curr_pair['n'][0]
+            nurse_name=curr_pair['n'][1]
+            if nurse_id in state_assignment['patientCount']:
+                state_assignment['patientCount'][nurse_id][1]+=1
+            else:
+                state_assignment['patientCount'][nurse_id]=[nurse_name,1]
+
+    # print("nurse_list", nurse_list)
+    for nurse in nurse_list:
+        if str(nurse[0]) not in state_assignment['patientCount']:
+            state_assignment['patientCount'][str(nurse[0])]=[nurse[1],0]
+    
+    print('patientCount ->',state_assignment['patientCount'])
+    return state_assignment
 
 if __name__ == "__main__":
     # Testing
