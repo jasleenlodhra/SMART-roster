@@ -33,8 +33,8 @@ class Patient(Base):
         Patient._validate_string_250("Name", name)
         self.name = name
 
-        self.first_name = self.name.split(' ')[0]
-        self.last_name = self.name.split(' ')[1]
+        # self.first_name = self.name.split(' ')[0]
+        # self.last_name = self.name.split(' ')[1]
 
         Patient._validate_string_250("Clinical area", clinical_area)
         self.clinical_area = clinical_area
@@ -88,9 +88,9 @@ class Patient(Base):
         """ get first name of patient """
         return self.name
 
-    def get_last_name(self) -> str:
-        """ get last name of patient """
-        return self.name.split(' ')[1]
+    # def get_last_name(self) -> str:
+    #     """ get last name of patient """
+    #     return self.name.split(' ')[1]
 
     def get_clinical_area(self) -> str:
         """ get clinical area that patient is currently assigned """
@@ -164,8 +164,8 @@ class Patient(Base):
         patient_dict = {}
 
         patient_dict['id'] = self.id
-        patient_dict['first_name'] = self.first_name
-        patient_dict['last_name'] = self.last_name
+        # patient_dict['first_name'] = self.first_name
+        # patient_dict['last_name'] = self.last_name
         patient_dict['clinical_area'] = self.clinical_area
         patient_dict['bed_num'] = self.bed_num
         patient_dict['acuity'] = self.acuity
