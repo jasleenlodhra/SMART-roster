@@ -571,8 +571,6 @@ def add_patient_records():
     except Exception as error:
         return str(error)
 
-    # print(dir(request))
-    print("referrer", request.referrer)
     if 'currentPNSheet' in request.referrer:
         return redirect(url_for('current_PNSheet'))
     else:
@@ -1458,6 +1456,9 @@ def save_current_state():
         # Runs only on first save
         date = request.form['shiftDate']
         time = request.form['shiftTime']
+
+        print("date: ", date)
+        print("time: ", time)
 
         date_time_obj = datetime.strptime(date + " " + time, '%Y-%m-%d %H:%M')
         date_time_obj = datetime.strftime(
