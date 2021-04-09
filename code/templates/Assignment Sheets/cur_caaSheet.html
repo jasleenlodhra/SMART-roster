@@ -15,9 +15,22 @@
     <small class="mb-2">{{now.strftime("%B %d, %Y - %I:%M:%S %p")}}</small><br>
     <small class="mb-2">Last Updated: {{state['timestamp']}}</small>
     <br><br>
+<!--Load State-->
+<div class="text-left" style="position: absolute; top: 20px; left: 60px;">
+  <form class="form form-group" action="/CAA_load_future" method="POST">
+      <select id="date-select" class="form-control form-control-sm col-10" name="date-select">
+          {% for i, shifts in enumerate(future_list) %}
+          <option id="shift-{{i}}" value="{{i}}">{{shifts}}</option>
+          {% endfor %}
+      </select>
+      <button type="submit" class="btn btn_create_custom" style="position: absolute; ">Load Future Shift</button>
+  </form>
+</div>
+<br><br>
+  
     <!--Charge Nurse-->
     <div class="row">
-      <div class="col rounded pt-3 px-4 mx-5 shadow-sm special_custom_box">
+      <div class="col rounded pt-3 px-4 mx-5 shadow-sm special_custom_box " style="background-color: lightgray;">
         <div class="row justify-content-center">
           <div class="col-9">
             <h6>Charge Nurses</h6>
@@ -43,7 +56,7 @@
         {% endfor %}
       </div>
       <!--Support Nurses-->
-      <div class="col rounded pt-3 pl-4 pr-5 mx-5 shadow-sm special_custom_box">
+      <div class="col rounded pt-3 pl-4 pr-5 mx-5 shadow-sm special_custom_box" style="background-color: lightgray;">
         <div class="row justify-content-center">
           <div class="col-8">
             <h6>Support Nurses</h6>
@@ -80,7 +93,7 @@
       <!--Right Column-->
       <div class="col mx-5">
         <div class="row w-100 px-2 shadow-sm special_custom_box"
-          style="padding: 10px 30px; border-radius: 5px;">
+          style=" background-color: lightgray; padding: 10px 30px; border-radius: 5px;">
           <div class="col-4">
             <h6>Code RN</h6>
           </div>

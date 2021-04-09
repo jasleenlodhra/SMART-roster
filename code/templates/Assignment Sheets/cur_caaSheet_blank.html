@@ -13,6 +13,18 @@
       <br><small>Print</small>
     </a>
     <br><br>
+    <!--Load State-->
+    <div class="text-left" style="position: absolute; top: 40px; left: 60px;">
+      <form class="form form-group" action="/CAA_load_future" method="POST">
+          <select id="date-select" class="form-control form-control-sm col-10" name="date-select">
+              {% for i, shifts in enumerate(future_list) %}
+              <option id="shift-{{i}}" value="{{i}}">{{shifts}}</option>
+              {% endfor %}
+          </select>
+          <button type="submit" class="btn btn_create_custom" style="position: absolute; ">Load Future Shift</button>
+      </form>
+  </div>
+  <br><br>
     <!--Charge Nurse-->
     <div class="row">
       <div class="col rounded pt-3 px-4 mx-5 shadow-sm" style="background-color: lightgray">

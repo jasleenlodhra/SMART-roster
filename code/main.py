@@ -45,8 +45,7 @@ app.secret_key = os.urandom(12).hex()
 db = mysql.connector.connect(
     host="localhost",
     user="root",
-    # passwd="Qwaszx2243",
-    passwd="",
+    passwd="12345678910",
     database="smartroster",
     auth_plugin="mysql_native_password"
 )
@@ -935,6 +934,17 @@ def settings():
 def current_CAASheet():
     """ Displays the current clinical area page """
     area_nurse_list = []
+    future_states = []
+
+    for root, dirs, files in os.walk("./cache/future_shift"):
+        for name in files:
+            future_states.append(name)
+
+    # future_json_list = sorted(os.listdir(f"{CURR_DIR}/cache/future_shift/"), reverse=True)
+    # for file in future_json_list:
+    #     with open(f"{CURR_DIR}/cache/future_shift/{file}", "r") as jsonfile:
+    #             temp_dict = json.load(jsonfile)
+    #             future_states.append(temp_dict["shift-datetime"])
 
     if 'loggedin' in session:
         # Grab nurse and patient tables
@@ -957,17 +967,73 @@ def current_CAASheet():
                                 int(state[-1]["assignment"][f"{area}{j + 1}"]['n'][0]))
                     except:
                         continue
+            
 
             return render_template("./Assignment Sheets/cur_caaSheet.html",
                                    loggedin=session['loggedin'],
                                    nurseList=nurse_list,
                                    areaNurseList=area_nurse_list,
+                                   future_list=future_states,
                                    state=state[-1])
 
         return render_template("./Assignment Sheets/cur_caaSheet_blank.html",
-                               loggedin=session['loggedin'])
+                               loggedin=session['loggedin'],
+                               nurseList=nurse_list,
+                               areaNurseList=area_nurse_list,
+                               future_list=future_states
+                               )
 
     return redirect(url_for('login'))
+
+@app.route("/CAA_load_future", methods=["POST"])
+def CAA_load_future_files():
+     future_nurse_list = []
+
+     if 'loggedin' in session:
+        # variables
+        future_nurse_list = []
+        future_json_list = []
+        future_states = []
+        state = None
+
+        # POST - position of load date json in file array
+        selected_date_pos = request.form['date-select']
+
+        # Grab nurse and patient tables
+        cursor.execute("SELECT * FROM nurses")
+        future_nurse_list = cursor.fetchall()
+
+        # Grab jsons in dir and store states
+        future_json_list = []
+         
+
+        for root, dirs, files in os.walk("./cache/future_shift"):
+            for name in files:
+                future_json_list.append(name)
+
+        for index, file in enumerate(future_json_list):
+            with open(f"{CURR_DIR}/cache/future_shift/{file}", "r") as jsonfile:
+                temp_dict = json.load(jsonfile)
+                future_states.append(temp_dict["shift-datetime"])
+            if index == int(selected_date_pos):
+                state = temp_dict
+
+        date_time_obj_formatted = state['shift-datetime']
+        date_time_obj = datetime.strptime(
+            date_time_obj_formatted, "%B %d, %Y - %I:%M:%S %p")
+
+        date = datetime.strftime(date_time_obj, "%Y-%m-%d")
+        time = datetime.strftime(date_time_obj, "%H:%M")
+
+        return render_template("./Assignment Sheets/CAA_load_future.html",
+                               currState=state,
+                               states=future_json_list,
+                               date=date,
+                               time=time,
+                               loggedin=session['loggedin'],
+                               futureList=future_nurse_list
+                               )
+     return redirect(url_for('login'))
 
 
 @app.route("/futureCAASheet")
@@ -1138,12 +1204,256 @@ def future_save():
 
     return redirect(url_for('login'))
 
+@app.route("/Loaded_pna_sheet", methods=["POST"])
+def load_pna_sheet():
+    """ Displays the current nurse-patient assignment sheet """
+    # Variables
+    curr_assignment = None
+
+    future_states = []
+    selected_date_pos = request.form['date-select']
+    for root, dirs, files in os.walk("./cache/patient_nurse_assignment"):
+        for name in dirs:
+            future_states.append(name)
+    
+    
+    
+    for index, folders in enumerate(future_states):
+            if index == int(selected_date_pos):
+                chosen_date = folders
+
+    print(chosen_date)
+    # future_json_list = sorted(os.listdir(f"{CURR_DIR}/cache/patient_nurse_assignment/"), reverse=True)
+    # for file in future_json_list:
+    #     with open(f"{CURR_DIR}/cache/patient_nurse_assignment/{file}", "r") as jsonfile:
+    #         temp_dict = json.load(jsonfile)
+    #         future_states.append(temp_dict["shift-datetime"])
+    
+
+    if 'loggedin' in session:
+        # Grab nurse and patient tables
+        cursor.execute("SELECT * FROM nurses WHERE current_shift=1")
+        nurse_list = cursor.fetchall()
+        cursor.execute("SELECT * FROM patients WHERE discharged_date='-'")
+        patient_list = cursor.fetchall()
+        cursor.execute("SELECT * FROM nurses")
+        full_nurse_list = cursor.fetchall()
+
+        # selected_file = request.form['date-select']
+
+       
+
+        pn_skill = {}
+        patient_location = ""
+        for patient in patient_list:
+
+            patient_location = patient[2] + str(patient[3])
+            pn_skill[patient_location] = []
+            for nurse in nurse_list:
+                if nurse[7] >= patient[4]:
+                    pn_skill[patient_location].append((nurse[0], nurse[1]))
+        print(pn_skill)
+
+        # if os.path.exists("{0}/cache/current_shift/state.json".format(CURR_DIR)):
+        #     with open("{0}/cache/current_shift/state.json".format(CURR_DIR), 'r') as jsonfile:
+        
+
+            ########################
+            # read the assignment from the patient_nurse_assignments table
+        with open(f"{CURR_DIR}/cache/patient_nurse_assignment/{chosen_date}/state.json", 'r') as statefile:
+                curr_state_assignment = json.load(statefile)[0]
+                # print (curr_state_assignment[0])
+                curr_state_datetime = curr_state_assignment['shift-datetime']
+                old_state_assign_full = curr_state_assignment['assignment']
+
+                # print(curr_state_datetime)
+
+            # use the datetime to find the assignments in db
+            # query="SELECT frn_patient_id,frn_nurse_id FROM smartroster.patient_nurse_assignments " \
+            # "WHERE patient_nurse_assignments.assignment_shift = '{0}'".format(curr_state_datetime)
+
+            # cursor.execute(query)
+
+            # insert new unassigned patient data into the patient_nurse_assignments
+        query = "INSERT INTO smartroster.patient_nurse_assignments(assignment_id,assignment_shift,frn_nurse_id,frn_patient_id) " \
+                "SELECT 0, '{0}', NULL, id FROM smartroster.patients "\
+                "WHERE patients.discharged_date = '-' and patients.previous_nurses IS NULL".format(
+                    curr_state_datetime)
+
+        try:
+                cursor.execute(query)
+                db.commit()
+        except Exception as error:
+                return str(error)
+
+            # change the unassigned patient's previous_nurses column to empty list
+        query = "SELECT id FROM patients WHERE patients.previous_nurses IS NULL"
+        cursor.execute(query)
+        unassigned_patient_ids = cursor.fetchall()
+        if len(unassigned_patient_ids):
+            format_strings = ','.join(['%s'] * len(unassigned_patient_ids))
+            args = []
+            for value in unassigned_patient_ids:
+                    args.append(value[0])
+
+                # update the previous_nurses field
+            query = "UPDATE `smartroster`.`patients` SET `previous_nurses` = '[]' WHERE `id` IN (%s)" % format_strings
+
+            arguments = tuple(args)
+            print(arguments)
+
+            try:
+                    cursor.execute(query, arguments)
+                    db.commit()
+            except Exception as error:
+                    return str(error)
+
+            # query clinical_area, bed_num, id(patient), name(patient), id(nurse), name(nurse) from patients table and nurses table
+            query = "SELECT p.clinical_area, p.bed_num, p.id, p.name,n.id,n.name FROM smartroster.patient_nurse_assignments "\
+                "INNER JOIN smartroster.patients as p ON patient_nurse_assignments.frn_patient_id= p.id "\
+                "INNER JOIN smartroster.nurses as n ON patient_nurse_assignments.frn_nurse_id= n.id OR patient_nurse_assignments.frn_nurse_id IS NULL "\
+                "WHERE patient_nurse_assignments.assignment_shift = '{0}'".format(
+                    curr_state_datetime)
+
+            cursor.execute(query)
+            new_curr_assign = cursor.fetchall()
+            # print('new_curr_assign -> ', new_curr_assign)
+
+            new_state_assign_full = {}
+            # format the data (like 'B1': {'p': ['34', 'Zaine Merritt'], 'n': ['2', 'Holly Baker']})
+            for clinical_bed_num in old_state_assign_full.keys():
+                new_state_assign_full[clinical_bed_num] = {'p': [], 'n': []}
+                for assignment in new_curr_assign:
+                    new_assign_clinical_bed_num = assignment[0]+str(
+                        assignment[1])
+                    if new_assign_clinical_bed_num == clinical_bed_num:
+                        new_state_assign_full[clinical_bed_num]['p'] = [
+                            str(assignment[2]), assignment[3]]
+                        new_state_assign_full[clinical_bed_num]['n'] = [
+                            str(assignment[4]), assignment[5]]
+                        break
+
+            # print('new_state_assign_full -> ', new_state_assign_full)
+
+            # query adv_role,nurse_ids from adv_role_assignments table
+            query = "SELECT adv_role,nurse_ids FROM smartroster.adv_role_assignments "\
+                "WHERE adv_role_assignments.assignment_shift = '{0}'".format(
+                    curr_state_datetime)
+
+            cursor.execute(query)
+            new_curr_adv_role_assign = cursor.fetchall()
+
+            # Dump the new adv_role_assign into dict[<adv role>] in state.json
+            for (adv_role, nurse_ids) in new_curr_adv_role_assign:
+                # print(adv_role+', ', type(nurse_ids))
+
+                curr_state_assignment[adv_role] = ast.literal_eval(nurse_ids)
+
+            # Dump the formatted data into the dict['assignment'] in state.json
+            curr_state_assignment['assignment'] = new_state_assign_full
+
+            with open(f"{CURR_DIR}/cache/patient_nurse_assignment/{chosen_date}/state.json", 'w') as statefile:
+                statefile.seek(0)
+                json.dump([curr_state_assignment], statefile)
+                statefile.truncate()
+
+            # grab the patient list
+            cursor.execute("SELECT * FROM patients WHERE discharged_date='-'")
+            patient_list = cursor.fetchall()
+
+            ########################
+
+            with open(f"{CURR_DIR}/cache/patient_nurse_assignment/{chosen_date}/state.json", 'r') as jsonfile:
+                state = json.load(jsonfile)
+            # if os.path.exists("{0}/cache/current_shift/flags.json".format(CURR_DIR)):
+            #     with open("{0}/cache/current_shift/flags.json".format(CURR_DIR), 'r') as flagfile:
+            # if os.path.exists("./cache/current_shift/flags.json"):
+            #     with open("./cache/current_shift/flags.json", 'r') as flagfile:
+            #         flags = json.load(flagfile)
+
+            return render_template("./Assignment Sheets/cur_pnSheetState.html",
+                                   loggedin=session['loggedin'],
+                                   state=state[-1],
+                                   states=future_states,
+                                #    flags=flags,
+                                   nurseList=nurse_list,
+                                   pn_skill=pn_skill,
+                                   patientList=patient_list)
+        # elif os.path.exists('{0}/cache/current_shift/curr_assignment.json'.format(CURR_DIR)):
+        #     with open('./cache/current_shift/curr_assignment.json', 'r') as jsonfile:
+        elif os.path.exists(f"{CURR_DIR}/cache/patient_nurse_assignment/{chosen_date}/curr_assignment.json"):
+            with open(f"{CURR_DIR}/cache/patient_nurse_assignment/{chosen_date}/curr_assignment.json", 'r') as jsonfile:
+                curr_assignment = json.load(jsonfile)
+
+            # print('The current assignment is:', curr_assignment)
+
+            for nurse_id in curr_assignment:
+                print(nurse_id)
+                # Advanced Role Assignment
+                for nurse in full_nurse_list:
+                    if nurse[0] == int(nurse_id):
+                        if nurse[11] != "":
+                            if nurse[11] == "Charge":
+                                curr_assignment[nurse_id]['adv'] = "Charge"
+                            if nurse[11] == "Support":
+                                curr_assignment[nurse_id]['adv'] = "Support"
+                            if nurse[11] == "Code":
+                                curr_assignment[nurse_id]['adv'] = "Code"
+
+                # Bed Assignments
+                list_of_beds = []  # temp list of beds
+                curr_assignment[nurse_id]['bed'] = ""  # init bed key
+
+                cursor.execute(
+                    "SELECT * FROM patients WHERE id in ('{0}')".format(
+                        str(curr_assignment[nurse_id]['patients'])[1:-1]))
+                list_of_patients = cursor.fetchall()
+
+                for p in list_of_patients:
+                    list_of_beds.append(p[2] + str(p[3]))
+
+                curr_assignment[nurse_id]['bed'] = list_of_beds
+
+            # Overwrite curr_assignment.json
+            # os.remove(
+            #     "{0}/cache/current_shift/curr_assignment.json".format(CURR_DIR))
+            # with open("{0}/cache/current_shift/curr_assignment.json".format(CURR_DIR), 'w') as jsonfile:
+            # os.remove(
+            #     "./cache/current_shift/curr_assignment.json")
+            with open(f"{CURR_DIR}/cache/patient_nurse_assignment/{chosen_date}/curr_assignment.json", 'w') as jsonfile:
+                json.dump(curr_assignment, jsonfile)
+
+            return render_template("./Assignment Sheets/cur_pnSheet.html",
+                                   loggedin=session['loggedin'],
+                                   curr_assignment=curr_assignment,
+                                   states=future_states,
+                                   nurseList=nurse_list,
+                                   pn_skill=pn_skill,
+                                   patientList=patient_list)
+        else:
+            return render_template("./Assignment Sheets/cur_pnSheet_blank.html",
+                                   loggedin=session['loggedin'])
+    return redirect(url_for('login'))
+
 
 @app.route("/currentPNSheet")
 def current_PNSheet():
     """ Displays the current nurse-patient assignment sheet """
     # Variables
     curr_assignment = None
+
+    future_states = []
+
+    for root, dirs, files in os.walk("./cache/patient_nurse_assignment"):
+        for name in dirs:
+            future_states.append(name)
+
+    # future_json_list = sorted(os.listdir(f"{CURR_DIR}/cache/future_shift/"), reverse=True)
+    # for file in future_json_list:
+    #     with open(f"{CURR_DIR}/cache/future_shift/{file}", "r") as jsonfile:
+    #         temp_dict = json.load(jsonfile)
+    #         future_states.append(temp_dict["shift-datetime"])
+    
 
     if 'loggedin' in session:
         # Grab nurse and patient tables
@@ -1285,6 +1595,7 @@ def current_PNSheet():
             return render_template("./Assignment Sheets/cur_pnSheetState.html",
                                    loggedin=session['loggedin'],
                                    state=state[-1],
+                                   states=future_states,
                                    flags=flags,
                                    nurseList=nurse_list,
                                    pn_skill=pn_skill,
@@ -1336,6 +1647,7 @@ def current_PNSheet():
             return render_template("./Assignment Sheets/cur_pnSheet.html",
                                    loggedin=session['loggedin'],
                                    curr_assignment=curr_assignment,
+                                   states=future_states,
                                    nurseList=nurse_list,
                                    pn_skill=pn_skill,
                                    patientList=patient_list)
@@ -1435,24 +1747,28 @@ def past_PNSheetState():
 
 
 @ app.route("/saveState", methods=['POST'])
-def save_current_state():
+def save_current_statesss():
     """ Saves changes to the nurse-patient assignment sheet. Also flags. """
     # variable init
     bed_value = ""  # reset on new pair
     patient_nurse_pair = []
 
+    # # date = request.form['shiftDate']
+    # # time = request.form['shiftTime']
+
     try:
         # Runs only on first save
+        
         date = request.form['shiftDate']
         time = request.form['shiftTime']
-
         date_time_obj = datetime.strptime(date + " " + time, '%Y-%m-%d %H:%M')
-        date_time_obj = datetime.strftime(
-            date_time_obj, "%B %d, %Y - %I:%M:%S %p")
+        date_time_obj_format = datetime.strftime(date_time_obj, "%B %d, %Y - %I:%M:%S %p")
+        
     except:
         # Runs on subsequent saves
         date_time_obj = request.form['datetime']
-
+    
+    
     # Grab nurse and patient tables
     cursor.execute("SELECT * FROM nurses WHERE current_shift=1")
     nurse_list = cursor.fetchall()
@@ -1472,6 +1788,10 @@ def save_current_state():
         flex = fixed
 
     if 'loggedin' in session:
+       
+        filename = datetime.strftime(date_time_obj, "%Y-%m-%d")
+        if not os.path.exists(f"{CURR_DIR}/cache/patient_nurse_assignment/{filename}"):
+            os.makedirs(f"{CURR_DIR}/cache/patient_nurse_assignment/{filename}")
         # Variables
         state_assignment_list = []  # Used for storing state history
         state_assignment = {
@@ -1482,13 +1802,25 @@ def save_current_state():
             "l_support": [],
             "l_code": [],
             "assignment": {},
-            "timestamp": datetime.now().strftime("%B %d, %Y - %I:%M:%S %p"),
-            "shift-datetime": date_time_obj,
+            # "timestamp": datetime.now().strftime("%B %d, %Y - %I:%M:%S %p"),
+            "timestamp": date_time_obj_format,
+            "shift-datetime": date_time_obj_format,
             "author": session['name'],
             "fixed": fixed[0],
             "flex": flex[0],
             "id": 0
         }
+
+        # directory = "/SMART-roster/code/cache/patient_nurse_assignment/"+ str(filename)
+        # if not os.path.exists(directory):
+        #     os.makedirs(directory)
+        # path=f"/SMART-roster/code/cache/patient_nurse_assignment/{filename}"
+        # os.mkdir(path)
+        
+        # filename_start = datetime.strptime(date)
+        # filename = datetime.strftime(filename_start,"%B-%d-%y")
+
+        # os.makedirs(f"{CURR_DIR}/cache/patient_nurse_assignment/{filename}")
 
         # Load state history if available
         if os.path.exists("{0}/cache/current_shift/state.json".format(CURR_DIR)):
@@ -1498,7 +1830,7 @@ def save_current_state():
 
         # flag dict init
         flags = {}
-
+        
         if os.path.exists("{0}/cache/current_shift/curr_assignment.json".format(CURR_DIR)):
             with open("{0}/cache/current_shift/curr_assignment.json".format(CURR_DIR), 'r') as jsonfile:
                 assignments = json.load(jsonfile)
@@ -1710,13 +2042,14 @@ def save_current_state():
 
                 flags["{0}{1}".format(area, i + 1)] = flag_list
 
-        # Write/Overwrite state.json
-        if os.path.exists("{0}/cache/current_shift/state.json".format(CURR_DIR)):
-            os.remove(
-                "{0}/cache/current_shift/state.json".format(CURR_DIR))
-        with open("./cache/current_shift/state.json", 'w') as jsonfile:
-            state_assignment_list.append(state_assignment)
-            json.dump(state_assignment_list, jsonfile)
+        # # Write/Overwrite state.json
+        
+        # if os.path.exists(f"{CURR_DIR}/cache/patient_nurse_assignment/{filename}/state.json".format(CURR_DIR)):
+        #     os.remove(f"{CURR_DIR}/cache/patient_nurse_assignment/{filename}/state.json".format(CURR_DIR))
+        
+        # with open(f"{CURR_DIR}/cache/patient_nurse_assignment/{filename}/state.json", 'w') as jsonfile:
+        #     state_assignment_list.append(state_assignment)
+        #     json.dump(state_assignment_list, jsonfile)
 
         print("State assignment -> ", state_assignment)
 
@@ -1791,14 +2124,54 @@ def save_current_state():
 
             ###########################
         # Write/Overwrite flags.json
-        if os.path.exists("{0}/cache/current_shift/flags.json".format(CURR_DIR)):
+
+        if os.path.exists("{0}/cache/current_shift/state.json".format(CURR_DIR)):
             os.remove(
-                "{0}/cache/current_shift/flags.json".format(CURR_DIR))
+                "{0}/cache/current_shift/state.json".format(CURR_DIR))
+        with open("./cache/current_shift/state.json", 'w') as jsonfile:
+            state_assignment_list.append(state_assignment)
+            json.dump(state_assignment_list, jsonfile)
+
+        # Write/Overwrite flags.json
+        if os.path.exists("{0}/cache/current_shift/flags.json".format(CURR_DIR)):
+            os.remove("{0}/cache/current_shift/flags.json".format(CURR_DIR))
         with open("./cache/current_shift/flags.json", 'w') as flagjson:
             json.dump(flags, flagjson)
 
+
+        if os.path.exists(f"{CURR_DIR}/cache/patient_nurse_assignment/{filename}/state.json".format(CURR_DIR)):
+            os.remove(f"{CURR_DIR}/cache/patient_nurse_assignment/{filename}/state.json".format(CURR_DIR))
+        
+        with open(f"{CURR_DIR}/cache/patient_nurse_assignment/{filename}/state.json".format(CURR_DIR), 'w') as jsonfile:
+            state_assignment_list.append(state_assignment)
+            json.dump(state_assignment_list, jsonfile)
+
+        # Write/Overwrite flags.json
+        if os.path.exists(f"{CURR_DIR}/cache/patient_nurse_assignment/{filename}/flags.json".format(CURR_DIR)):
+            os.remove(f"{CURR_DIR}/cache/patient_nurse_assignment/{filename}/flags.json".format(CURR_DIR))
+        
+        with open(f"{CURR_DIR}/cache/patient_nurse_assignment/{filename}/flags.json".format(CURR_DIR), 'w') as flagjson:
+            json.dump(flags, flagjson)
+
+
+        if os.path.exists(f"{CURR_DIR}/cache/patient_nurse_assignment/{filename}/curr_assignment.json".format(CURR_DIR)):
+            os.remove(f"{CURR_DIR}/cache/patient_nurse_assignment/{filename}/curr_assignment.json".format(CURR_DIR))
+
+        with open(f"{CURR_DIR}/cache/patient_nurse_assignment/{filename}/curr_assignment.json".format(CURR_DIR), 'w') as jsonfile:
+                json.dump(assignments, jsonfile)
+
         return redirect(url_for('current_PNSheet'))
+    
+        
     return redirect(url_for('login'))
+
+
+
+
+
+
+
+
 
 
 @ app.route('/endShift', methods=['POST'])

@@ -1,0 +1,315 @@
+{% extends "base.html" %} {% block content %}
+<!--Content Here-->
+<!--Jumbotron-->
+<div class="jumbotron py-3">
+  <div class="jumbotron-content">
+    <div class="row justify-content-md-center">
+      <h1 class="jumbotron-title col">Clinical Area Assignment Page</h1>
+    </div>
+    <a href="#" onclick="printPage()" style="position: absolute; right: 50px; top: 30px;">
+      <i class="fas fa-print fa-3x" style="color:black"></i>
+      <br><small>Print</small>
+    </a>
+    <br><br>
+    
+    <div class="text-left" style="position: absolute; top: 20px; left: 60px;">
+      <form class="form form-group" action="/CAA_load_future" method="POST">
+          <select id="date-select" class="form-control form-control-sm col-10" name="date-select">
+              {% for i, state in enumerate(states) %}
+              <option id="shift-{{i}}" value="{{i}}">{{state}}</option>
+              {% endfor %}
+          </select>
+          <button type="submit" class="btn btn_create_custom" style="position: absolute; ">Load Future Shift</button>
+      </form>
+  </div>
+  
+    <!--Charge Nurse-->
+    <div class="row">
+        <div class="col rounded pt-3 px-4 mx-5 shadow-sm" style="background-color: lightgray;">
+            <div class="row justify-content-center">
+                <div class="col-9">
+                    <h6>Charge Nurses</h6>
+                </div>
+                <div class="col-3">
+                    <h6>Skill Level</h6>
+                </div>
+            </div>
+            {% for i in range(3)%}
+            <div class="row justify-content-center mb-2">
+                <select class="col-8 form-control form-control-sm rounded text-center" id="CN{{i}}" type="text"
+                    value="" onchange="updateCNDetails()">
+                    {% if currState['charge'][i] %}
+                    {% for nurse in futureList if nurse[0] == currState['charge'][i]|int %}
+                    <option id='cn-assign-{{nurse[0]}}' value="{{nurse[0]}}" data-skill="{{nurse[7]}}" selected>
+                        {{nurse[1]}}
+                    </option>
+                    {% endfor %}
+                    {% endif %}
+                    <option id="blank-cn"></option>
+                    {% for index, nurse in enumerate(futureList) %}
+                    {% if nurse[11] == "Charge" %}
+                    <option class="table-success" id='cn-assign-{{nurse[0]}}' value="{{nurse[0]}}"
+                        data-skill="{{nurse[7]}}">
+                        {{nurse[1]}}
+                    </option>
+                    {% else %}
+                    <option id='cn-assign-{{nurse[0]}}' value="{{nurse[0]}}" data-skill="{{nurse[7]}}">
+                        {{nurse[1]}}
+                    </option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+
+                {% if currState['charge'][i] %}
+                {% for nurse in futureList if nurse[0] == currState['charge'][i]|int %}
+                <input class="col-2 offset-1 form-control form-control-sm rounded text-center" type="text"
+                    id="CN_skill{{i}}" value="{{nurse[7]}}" disabled>
+                {% endfor %}
+                {% else %}
+                <input class="col-2 offset-1 form-control form-control-sm rounded text-center" type="text"
+                    id="CN_skill{{i}}" value="" disabled>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+      <!--Support Nurses-->
+      <div class="col rounded pt-3 pl-4 pr-5 mx-5 shadow-sm" style="background-color: lightgray;">
+        <div class="row justify-content-center">
+            <div class="col-6">
+                <h6>Support Nurses</h6>
+            </div>
+            <div class="col-2">
+                <h6>Area</h6>
+            </div>
+            <div class="col-2">
+                <h6>Rotation</h6>
+            </div>
+        </div>
+        {% for i in range(3)%}
+        <div class="row justify-content-center mb-2">
+            <select class="col-6 form-control form-control-sm rounded text-center" type="text" value=""
+                id="SN{{i}}" onchange="updateSNDetails()">
+                {% if currState['support'][i] %}
+                {% for nurse in futureList if nurse[0] == currState['support'][i]|int %}
+                <option id='sn-assign-{{nurse[0]}}' value="{{nurse[0]}}" data-skill="{{nurse[7]}}" selected>
+                    {{nurse[1]}}
+                </option>
+                {% endfor %}
+                {% endif %}
+                <option id="blank-sn"></option>
+                {% for index, nurse in enumerate(futureList) %}
+                {% if nurse[11] == "Support" %}
+                <option class="table-warning" id='sn-assign-{{nurse[0]}}' value="{{nurse[0]}}"
+                    data-area="{{nurse[2]}}" data-rotation="{{nurse[4]}}">
+                    {{nurse[1]}}
+                </option>
+                {% else %}
+                <option id='sn-assign-{{nurse[0]}}' value="{{nurse[0]}}" data-area="{{nurse[2]}}"
+                    data-rotation="{{nurse[4]}}">{{nurse[1]}}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+
+            {% if currState['support'][i] %}
+            {% for nurse in futureList if nurse[0] == currState['support'][i]|int %}
+            <input class="col-2 offset-1 form-control form-control-sm rounded text-center" type="text"
+                id="SN_area{{i}}" value="{{nurse[2]}}" disabled>
+            <input class="col-2 form-control form-control-sm rounded text-center" type="text"
+                id="SN_rotation{{i}}" value="{{nurse[4]}}" disabled>
+            {% endfor %}
+            {% else %}
+            <input class="col-2 offset-1 form-control form-control-sm rounded text-center" type="text"
+                id="SN_area{{i}}" value="" disabled>
+            <input class="col-2 form-control form-control-sm rounded text-center" type="text"
+                id="SN_rotation{{i}}" value="" disabled>
+            {% endif %}
+
+        </div>
+        {% endfor %}
+      </div>
+    <!--Right Column-->
+            <div class="col mx-5">
+                <div class="row w-100 px-2 shadow-sm"
+                    style="background-color: lightgray; padding: 10px 30px; border-radius: 5px;">
+                    <div class="col-4">
+                        <h6>Code RN</h6>
+                    </div>
+                    <select class="col-6 form-control form-control-sm rounded text-center" type="text" value="">
+                        {% if currState['code'][0] %}
+                        {% for nurse in futureList if nurse[0] == currState['code'][0]|int %}
+                        <option id='code-assign-{{nurse[0]}}' value="{{nurse[0]}}" selected>
+                            {{nurse[1]}}
+                        </option>
+                        {% endfor %}
+                        {% endif %}
+                        <option id="blank-code" value=""></option>
+                        {% for index, nurse in enumerate(futureList) %}
+                        {% if nurse[11] == "Code" %}
+                        <option class="table-danger" id='code-assign-{{nurse[0]}}' value="{{nurse[0]}}">
+                            {{nurse[1]}}
+                        </option>
+                        {% else %}
+                        <option id='code-assign-{{nurse[0]}}' value="{{nurse[0]}}">{{nurse[1]}}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                    <div class="col-1"></div>
+                </div>
+                <div class="mt-5 rounded col-12 row w-100 px-2 shadow-sm"
+                    style="background-color: lightgray; padding: 10px 30px; width: 100px">
+                    <div class="row col-12">
+                        <h6 class="mt-1 col-4">Fixed</h6>
+                        <select class="col-4 ml-2 mb-2 form-control form-control-sm rounded text-center" type="text">
+                            {% if currState['fixed'] %}
+                            <option id="fixed-{{currState['fixed']}}" value="{{currState['fixed']}}">
+                                {{currState['fixed']}}
+                            </option>
+                            {% endif %}
+                            <option id="fixed-blank" value=""></option>
+                            {% for i, x in enumerate(range(8)) %}
+                            <option id='fixed-{{i+1}}' value="{{i+1}}">{{i+1}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="row col-12">
+                        <h6 class="mt-1 col-4">Flex</h6>
+                        <select class="col-4 ml-2 mb-2 form-control form-control-sm rounded text-center" type="text">
+                            {% if currState['flex'] %}
+                            <option id="fixed-{{currState['flex']}}" value="{{currState['flex']}}">
+                                {{currState['flex']}}
+                            </option>
+                            {% endif %}
+                            <option id="flex-blank" value=""></option>
+                            {% for i, x in enumerate(range(8)) %}
+                            <option id='flex-{{i+1}}' value="{{i+1}}">{{i+1}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+</div>
+
+{% set areas=["A", "B", "C", "D", "E", "F"] %}
+{% set area_iter = namespace(value=0) %}
+
+<div class="container-fluid px-5">
+  <div class="justify-content-center">
+    <div class="col-12">
+        <!--Clinical Area Container-->
+        {% for k in range(6) %}
+        <div class="row col-12 mb-3 m-0 p-0 shadow-sm" style="border-radius: 10px; border: 1px solid lightgrey;">
+            <div style="border-top-left-radius: 10px; border-bottom-left-radius: 10px;" {% if area_iter.value < 4 %}
+                class="pod-norm px-4 py-2" {% else %} class="pod-spec px-4 py-2" {% endif %}>
+                <p class="text-center" style="margin-top: 125px;"><b>{{areas[area_iter.value]}}</b></p>
+            </div>
+            {% for j in range(2) %}
+            <div class="col-5">
+                <div class="row justify-content-center">
+                    <div class="col-7">
+                        <small class="mt-1"><b>Name</b></small>
+                    </div>
+                    <div class="col-1 mx-1">
+                        <small class="mt-1"><b>Skill</b></small>
+                    </div>
+                    <div class="col-1 mx-1 ">
+                        <small class="mt-1"><b>Group</b></small>
+                    </div>
+                    <div class="col-1 mx-1">
+                        <small class="mt-1"><b>Shift</b></small>
+                    </div>
+                    <div class="col-1">
+                    </div>
+                </div>
+                {% for i in range(7) %}
+                {% set row_col_num = (7*j + i) %}
+                <div class="row justify-content-center mb-2">
+                    <select class="col-7 form-control form-control-sm rounded text-center mx-1" type="text" value=""
+                        id="Nurse{{k}}{{j}}{{i}}" onchange="updateNurseDetails()">
+                        {% if currState['assignment'][areas[area_iter.value]][row_col_num] %}
+                        {% set currentId = currState['assignment'][areas[area_iter.value]][row_col_num] %}
+                        {% for nurse in futureList if nurse[0] == currentId|int %}
+                        <option id='{{areas[area_iter.value]}}-{{nurse[0]}}' value="{{nurse[0]}}">
+                            {{nurse[1]}}
+                        </option>
+                        {% endfor %}
+                        {% endif %}
+                        <option id="blank-nurse-{{i+1}}" value=""></option>
+                        {% for index, nurse in enumerate(futureList) %}
+                        <option id='{{areas[area_iter.value]}}-{{nurse[0]}}' value="{{nurse[0]}}"
+                            data-skill={{nurse[7]}} data-group={{nurse[5]}} data-rotation={{nurse[4]}}>
+                            {{nurse[1]}}
+                        </option>
+                        {% endfor %}
+                    </select>
+
+                    {% if currentId %}
+                    {% for nurse in futureList if nurse[0] == currentId|int %}
+                    <input class="col-1 form-control form-control-sm rounded text-center mx-1" type="text"
+                        id="Nurse_skill{{k}}{{j}}{{i}}" value="{{nurse[7]}}" disabled>
+                    <input class="col-1 form-control form-control-sm rounded text-center mx-1" type="text"
+                        id="Nurse_group{{k}}{{j}}{{i}}" value="{{nurse[5]}}" disabled>
+                    <input class="col-1 form-control form-control-sm rounded text-center mx-1" type="text"
+                        id="Nurse_rotation{{k}}{{j}}{{i}}" value="{{nurse[4]}}" disabled>
+                    <button class="col-1 btn form-control-sm btn-warning mx-1 invisible" data-toggle="modal"
+                        data-target="#flagModal">
+                        <i class="fas fa-exclamation-circle"></i></button>
+                    {% endfor %}
+                    {% else %}
+                    <input class="col-1 form-control form-control-sm rounded text-center mx-1" type="text"
+                        id="Nurse_skill{{k}}{{j}}{{i}}" value="" disabled>
+                    <input class="col-1 form-control form-control-sm rounded text-center mx-1" type="text"
+                        id="Nurse_group{{k}}{{j}}{{i}}" value="" disabled>
+                    <input class="col-1 form-control form-control-sm rounded text-center mx-1" type="text"
+                        id="Nurse_rotation{{k}}{{j}}{{i}}" value="" disabled>
+                    <button class="col-1 btn form-control-sm btn-warning mx-1 invisible" data-toggle="modal"
+                        data-target="#flagModal">
+                        <i class="fas fa-exclamation-circle"></i></button>
+                    {% endif %}
+
+                    {% set currentId=null %}
+
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+        {% set area_iter.value = area_iter.value + 1 %}
+        {% endfor %}
+    </div>
+</div>
+</div>
+
+<!--Flag Modal-->
+<div class="modal fade" id="flagModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="flagModalLabel">DTA/Comments for </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <h6>Comments</h6>
+            <small id="flag-comment"></small>
+            <hr>
+            <h6>DTA</h6>
+            <small id="flag-dta"></small>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+//   $("document").ready(function () {
+//     alert("Please: \n\t1. Run the scheduler \n\t2. Save Patient/Nurse Assignment")
+//   })
+</script>
+
+{% endblock %}

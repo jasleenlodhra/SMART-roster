@@ -29,6 +29,18 @@
             data-target=".createModalCenter" style="position: absolute; right: 180px; top: 40px">
             <span class="fa fa-plus-square"></span> New Patient
         </button>
+        
+        <div class="text-left" style="position: absolute; top: 20px; left: 60px;">
+            <form class="form form-group" action="/Loaded_pna_sheet" method="POST">
+                <select id="date-select" class="form-control form-control-sm col-10" name="date-select">
+                    {% for i, state in enumerate(states) %}
+                    <option id="shift-{{i}}" value="{{i}}">{{state}}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn_create_custom" style="position: absolute; ">Load Future Shift</button>
+            </form>
+        </div>
+        
         <input type="date" id="shiftDate" class="form-control-sm" value={{now.strftime("%Y-%m-%d")}}>
         <input type="time" id="shiftTime" class="form-control-sm" value={{now.strftime("%H:%M")}}>
         <br><br>
