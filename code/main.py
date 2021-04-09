@@ -1023,6 +1023,7 @@ def future_CAASheet_state():
 
         # POST - position of load date json in file array
         selected_date_pos = request.form['date-select']
+        print('date-select: ', selected_date_pos)
 
         # Grab nurse and patient tables
         cursor.execute("SELECT * FROM nurses")
@@ -1066,7 +1067,8 @@ def future_save():
             # POST variables
             date = request.form['shiftDate']
             time = request.form['shiftTime']
-
+            print("date: ", date)
+            print("time: ", time)
             # Convert date-time -> datetime obj -> string
             date_time_obj = datetime.strptime(
                 date + " " + time, '%Y-%m-%d %H:%M')
@@ -1077,6 +1079,7 @@ def future_save():
 
             # Parse request
             future_data = request.form['saveFutureData']
+            print("future data: ", future_data)
             future_data = future_data.strip('][').split(',')
             future_data = list(filter(('null').__ne__, future_data))
 
@@ -1408,6 +1411,7 @@ def past_PNSheetState():
         try:
             # Selected version array position
             version_select = request.form["version-select"].split("-")
+            print("version select: ", version_select)
 
             past_json_list = sorted(os.listdir(
                 f"{CURR_DIR}/cache/past_shift/"), reverse=True)
@@ -1457,6 +1461,9 @@ def save_current_state():
         # Runs only on first save
         date = request.form['shiftDate']
         time = request.form['shiftTime']
+
+        print("date: ", date)
+        print("time: ", time)
 
         date_time_obj = datetime.strptime(date + " " + time, '%Y-%m-%d %H:%M')
         date_time_obj = datetime.strftime(
