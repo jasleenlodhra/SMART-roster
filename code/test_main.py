@@ -244,6 +244,7 @@ class TestMain(unittest.TestCase):
                                                            'create_advanced_role': 'advanced', 'create_nurse_dta': 'dta',
                                                            'create_nurse_comments': 'comments'})
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location, 'http://localhost/nurseRecords')
 
     def test_add_nurse_records_exceptions(self):
         response = self.app.post('/addNurseRecords', data={'create_nurse_name': 'new nurse', 'create_nurse_area': 'A',
@@ -252,6 +253,7 @@ class TestMain(unittest.TestCase):
                                                            'create_advanced_role': 'advanced',
                                                            'create_nurse_dta': 'dta', 'create_nurse_comments': 'comments'})
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location, 'http://localhost/nurseRecords')
 
     def test_edit_nurse_records(self):
         response = self.app.post('/editNurseRecords', data={'edit_nurse_id': 1, 'edit_nurse_name': 'new name', 'edit_nurse_area': 'B',
@@ -261,6 +263,7 @@ class TestMain(unittest.TestCase):
                                                             'edit_a_trained_toggle': 1, 'edit_transfer_toggle': 1, 'edit_iv_toggle': 1,
                                                             'L_check_4': 3, 'L_check_3': 'L'})
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location, 'http://localhost/nurseRecords')
 
     def test_edit_nurse_records_exceptions(self):
         response = self.app.post('/editNurseRecords', data={'edit_nurse_id': 1, 'edit_nurse_name': 'new name', 'edit_nurse_area': 'B',
@@ -268,11 +271,13 @@ class TestMain(unittest.TestCase):
                                                             'edit_nurse_skill': 1, 'edit_advanced_role': 'advance',
                                                             'edit_nurse_dta': 'dta', 'edit_nurse_comments': 'some comments'})
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location, 'http://localhost/nurseRecords')
 
     def test_delete_nurse_records(self):
         response = self.app.post(
             '/deleteNurseRecords', data={'remove_nurse_id': 162})
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location, 'http://localhost/nurseRecords')
 
     def test_delete_nurse_records_failed(self):
         response = self.app.post(
@@ -322,6 +327,8 @@ class TestMain(unittest.TestCase):
                                                               'edit_transfer_toggle': 1, 'edit_iv_toggle': 1, 'edit_one_to_one_toggle': 1,
                                                               'edit_twin_toggle': 1})
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location,
+                         "http://localhost/patientRecords")
 
     def test_edit_patient_records_exception(self):
         response = self.app.post('/editPatientRecords', data={'edit_patient_id': 110, 'edit_patient_name': 'newer name',
@@ -329,11 +336,15 @@ class TestMain(unittest.TestCase):
                                                               'edit_date_admitted': '2021-03-20', 'edit_date_discharged': '2021-04-01',
                                                               'edit_comments': 'some fancy comments'})
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location,
+                         "http://localhost/patientRecords")
 
     def test_delete_patient_records(self):
         response = self.app.post(
             '/deletePatientRecords', data={'remove_patient_id': 110})
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location,
+                         "http://localhost/patientRecords")
 
     def test_delete_patient_records_failed(self):
         response = self.app.post(
@@ -380,6 +391,7 @@ class TestMain(unittest.TestCase):
                                                                'edit_transfer_toggle': 1, 'edit_iv_toggle': 1, 'edit_one_to_one_toggle': 1,
                                                                'edit_twin_toggle': 1})
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location, "http://localhost/patientArchives")
 
     def test_edit_patient_archives_exceptions(self):
         response = self.app.post('/editPatientArchives', data={'edit_patient_id': 110, 'edit_patient_name': 'newer name',
@@ -387,11 +399,13 @@ class TestMain(unittest.TestCase):
                                                                'edit_date_admitted': '2021-03-20', 'edit_date_discharged': '2021-04-01',
                                                                'edit_comments': 'some fancy comments'})
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location, "http://localhost/patientArchives")
 
     def test_delete_patient_archives(self):
         response = self.app.post(
             '/deletePatientArchives', data={'remove_patient_id': 117})
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location, "http://localhost/patientArchives")
 
     def test_delete_patient_archives_failed(self):
         response = self.app.post(
@@ -416,6 +430,8 @@ class TestMain(unittest.TestCase):
         with open(f"{curr_dir}\static\images\dog.png", 'rb') as image:
             response = self.app.post('/upload_image', data={'file': image})
             self.assertEqual(response.status_code, 302)
+            self.assertEqual(response.location,
+                             'http://localhost/profile?filename=dog.png')
 
     def test_upload_image_not_selected(self):
         self.app.post(
@@ -424,31 +440,36 @@ class TestMain(unittest.TestCase):
         with open(f"{curr_dir}\static\images\dog.png", 'rb') as image:
             response = self.app.post('/upload_image', data={'file': ''})
             self.assertEqual(response.status_code, 302)
+            self.assertEqual(response.location,
+                             'http://localhost/upload_image')
 
-    # def test_change_password_new_ps_not_match(self):
-    #     self.app.post(
-    #         '/loginUser', data={'username': 'A_username', 'password': 'Password1'})
-    #     response = self.app.post('/changePassword', data={'oldPassword': 'Password1', 'newPassword': 'newPassword',
-    #                                                       'confirmPassword': 'Password1'})
-    #     self.assertEqual(response.status_code, 302)
-
-    # def test_change_password_old_ps_not_match(self):
-    #     self.app.post(
-    #         '/loginUser', data={'username': 'A_username', 'password': 'Password1'})
-    #     response = self.app.post('/changePassword', data={'oldPassword': 'wrong_password', 'newPassword': 'newPassword',
-    #                                                       'confirmPassword': 'newPassword'})
-    #     self.assertEqual(response.status_code, 302)
-
-    def test_change_password(self):
+    def test_change_password_new_ps_not_match(self):
         self.app.post(
             '/loginUser', data={'username': 'A_username', 'password': 'Password1'})
         response = self.app.post('/changePassword', data={'oldPassword': 'Password1', 'newPassword': 'newPassword',
+                                                          'confirmPassword': 'Password1'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location, 'http://localhost/profile')
+
+    def test_change_password_old_ps_not_match(self):
+        self.app.post(
+            '/loginUser', data={'username': 'A_username', 'password': 'Password1'})
+        response = self.app.post('/changePassword', data={'oldPassword': 'wrong_password', 'newPassword': 'newPassword',
                                                           'confirmPassword': 'newPassword'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location, 'http://localhost/profile')
+
+    def test_change_password(self):
         # self.app.post(
-        #     '/loginUser', data={'username': 'A_username', 'password': 'newPassword'})
-        # response = self.app.post('/changePassword', data={'oldPassword': 'newPassword', 'newPassword': 'Password1',
-        #                                                   'confirmPassword': 'Password1'})
-        # self.assertEqual(response.status_code, 302)
+        #     '/loginUser', data={'username': 'A_username', 'password': 'Password1'})
+        # response = self.app.post('/changePassword', data={'oldPassword': 'Password1', 'newPassword': 'newPassword',
+        #                                                   'confirmPassword': 'newPassword'})
+        self.app.post(
+            '/loginUser', data={'username': 'A_username', 'password': 'newPassword'})
+        response = self.app.post('/changePassword', data={'oldPassword': 'newPassword', 'newPassword': 'Password1',
+                                                          'confirmPassword': 'Password1'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location, 'http://localhost/profile')
 
 # data={'username': 'A_username', 'first_name': 'John',
 #         'last_name': 'Doe', 'password': 'Password1', 'password_conf': 'Password1'}
@@ -566,6 +587,7 @@ class TestMain(unittest.TestCase):
         response = self.app.post(
             '/updateCurrNurses', data={'current_nurses_list': '1, 2, 3, 4, 5, 6, 7, 8, 9, 10', 'fixed': 1, 'flex': 2})
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location, 'http://localhost/')
 
     def test_update_current_nurses_invalid(self):
         self.app.post(
@@ -573,8 +595,3 @@ class TestMain(unittest.TestCase):
         response = self.app.post(
             '/updateCurrNurses', data={'current_nurses_list': 'invalid', 'fixed': 1, 'flex': 2})
         self.assertEqual(response.status_code, 200)
-
-    # def test_update_current_nurses_no_login(self):
-    #     response = self.app.post(
-    #         '/updateCurrNurses', data={'current_nurses_list': '1, 2, 3, 4, 5, 6, 7, 8, 9, 10', 'fixed': 1, 'flex': 2})
-    #     self.assertEqual(response.status_code, 200)
