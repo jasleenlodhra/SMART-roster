@@ -21,10 +21,12 @@ class Nurse(Base):
     transfer = Column(Boolean, nullable=True)
     picc = Column(Boolean, nullable=True)
     advanced_role = Column(String(250), nullable=True)
-    previous_patients = Column(String(250), nullable=True)  # not too sure how to store this
+    # not too sure how to store this
+    previous_patients = Column(String(250), nullable=True)
     dta = Column(String(250), nullable=True)
     comments = Column(String(250), nullable=True)
-    priority = Column(Boolean, nullable=True)  # can someone confirm this is a boolean? i forgot what this was
+    # can someone confirm this is a boolean? i forgot what this was
+    priority = Column(Boolean, nullable=True)
     current_shift = Column(Boolean, nullable=True)
     num_patients = Column(Integer, nullable=True)
 
@@ -33,55 +35,64 @@ class Nurse(Base):
                  advanced_role: str, previous_patients: str, dta: str, comments: str, priority: int,
                  current_shift: int) -> None:
         """ Validates and Initializes a Nurse """
-        # Nurse._validate_positive_integer("Nurse ID", id)
+        Nurse._validate_positive_integer("Nurse ID", id)
         self.id = id
 
-        # Nurse._validate_string_250("Name", name)
+        Nurse._validate_string_250("Name", name)
         self.name = name
 
-        # Nurse._validate_string_250("Clinical area", clinical_area)
-        self.clinical_area = clinical_area
+        Nurse._validate_string_250("Clinical area", clinical_area)
+        if len(clinical_area) < 2:
+            self.clinical_area = clinical_area
+        else:
+            raise ValueError()
 
-        # Nurse._validate_positive_integer("Bed number", bed_num)
-        self.bed_num = bed_num
+        Nurse._validate_positive_integer("Bed number", bed_num)
+        if bed_num < 15:
+            self.bed_num = bed_num
+        else:
+            raise ValueError()
 
-        # Nurse._validate_string_250("Rotation", rotation)
+        Nurse._validate_string_250("Rotation", rotation)
         self.rotation = rotation
 
-        # Nurse._validate_positive_integer("Group", group)
+        Nurse._validate_positive_integer("Group", group)
         self.group = group
 
-        # Nurse._validate_positive_float("fte", fte)
+        Nurse._validate_positive_float("fte", fte)
         self.fte = fte
 
-        # Nurse._validate_positive_integer("Skill level", skill_level)
-        self.skill_level = skill_level
+        Nurse._validate_positive_integer("Skill level", skill_level)
+        if skill_level < 6:
+            self.skill_level = skill_level
+        else:
+            raise ValueError()
 
-        # Nurse._validate_boolean("A-Trained value", a_trained)
+        Nurse._validate_boolean("A-Trained value", a_trained)
         self.a_trained = a_trained
 
-        # Nurse._validate_boolean("Transfer value", transfer)
+        Nurse._validate_boolean("Transfer value", transfer)
         self.transfer = transfer
 
-        # Nurse._validate_boolean("PICC value", picc)
+        Nurse._validate_boolean("PICC value", picc)
         self.picc = picc
 
-        # Nurse._validate_string_250("Advanced Role", advanced_role)
+        Nurse._validate_string_250("Advanced Role", advanced_role)
         self.advanced_role = advanced_role
 
-        # Nurse._validate_string_250("Previous Patients", previous_patients)
+        Nurse._validate_string_250("Previous Patients", previous_patients)
         self.previous_patients = previous_patients
 
-        # Nurse._validate_string_250("dta", dta)
+        Nurse._validate_string_250("dta", dta)
         self.dta = dta
 
-        # Nurse._validate_string_250("Comments", comments)
-        # self.comments = comments
+        Nurse._validate_string_250("Comments", comments)
+        self.comments = comments
 
-        # Nurse._validate_boolean("Priority/Non-Priority", priority)
+        Nurse._validate_boolean("Priority/Non-Priority", priority)
         self.priority = priority
 
-        # Nurse._validate_boolean("Current Shift", current_shift)
+        Nurse._validate_boolean("Current Shift", current_shift)
         self.current_shift = current_shift
 
     ###############################################
@@ -159,6 +170,9 @@ class Nurse(Base):
         """get group number from nurse"""
         return self.group
 
+    def get_comment(self):
+        return self.comments
+
     # ---------------------------------------------#
     #                  SETTERS                    #
     # ---------------------------------------------#
@@ -167,10 +181,10 @@ class Nurse(Base):
         """set if the nurse is assigned"""
         self.assigned = assigned
 
-
     ###############################################
     #                Public Methods               #
     ###############################################
+
     def to_dict(self) -> dict:
         """ Returns nurse information in a dictionary """
         nurse_dict = {}
@@ -204,10 +218,11 @@ class Nurse(Base):
         """ Checks if input is string """
         if not isinstance(str_value, str):
             raise ValueError(input_value + " is not a string.")
-        if (str_value == "") or (str_value is None):
-            raise ValueError(input_value + " cannot be empty.")
+        # if (str_value == "") or (str_value is None):
+        #     raise ValueError(input_value + " cannot be empty.")
         if len(str_value) > 250:
-            raise ValueError(input_value + " cannot be longer than 250 characters.")
+            raise ValueError(
+                input_value + " cannot be longer than 250 characters.")
 
     @staticmethod
     def _validate_positive_integer(input_value: str, int_value: int) -> None:
@@ -222,8 +237,8 @@ class Nurse(Base):
     @staticmethod
     def _validate_positive_float(input_value: str, float_value: float) -> None:
         """ Checks if input is integer and not negative """
-        if not isinstance(float_value, float):
-            raise ValueError(input_value + " is not a float.")
+        # if not isinstance(float_value, float):
+        #     raise ValueError(input_value + " is not a float.")
         if float_value is None:
             raise ValueError(input_value + " cannot be empty.")
         if float_value < 0:
@@ -232,7 +247,7 @@ class Nurse(Base):
     @staticmethod
     def _validate_boolean(input_value: str, bool_value: bool) -> None:
         """ Checks if input is boolean """
-        if not isinstance(bool_value, bool):
-            raise ValueError(input_value + " is not a boolean.")
+        # if not isinstance(bool_value, bool):
+        #     raise ValueError(input_value + " is not a boolean.")
         if bool_value is None:
             raise ValueError(input_value + " cannot be empty.")

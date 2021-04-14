@@ -27,6 +27,10 @@
             <i class="fas fa-calendar-check fa-3x" style="color:black"></i>
             <br><small>End/Finalize Shift</small>
         </a>
+        <button type="button" class="btn btn_create_custom" data-toggle="modal"
+            data-target=".createModalCenter" style="position: absolute; right: 280px; top: 40px">
+            <span class="fa fa-plus-square"></span> New Patient
+        </button>
 
         <small class="mb-2">Current Shift: <span id="curr-datetime">{{state["shift-datetime"]}}</span></small> <br>
         <small class="mb-2">Last Updated: {{state['timestamp']}} by {{state.author}}</small>
@@ -118,6 +122,26 @@
                         {% endfor %}
                     </select>
                 </div>
+
+                <!-- standby nurses list -->
+                
+                <div class="input-group shadow-sm" style="margin-top: 16px;">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" style="width: 140px">Standby Nurses</label>
+                    </div>
+                    <select class="form-control" id="standby-nurses-list">
+                        {% if state['patientCount']|length %}
+                            
+                            {% for nurse_ID, nurse_count in state['patientCount'].items() if nurse_count[1]|int < 1 %}
+                            <option>{{nurse_count[0]}}</option>
+                            
+                            {% endfor %}
+                            
+                        {% endif %}
+                        
+                        
+                    </select>
+                </div>
             </div>
             <div class="col-4">
                 <!--L Charge Dropdown-->
@@ -170,7 +194,7 @@
                     <select class="form-control" id="lcode-assign-form">
                         {% if state['l_code'][0] %}
                         {% for nurse in nurseList if nurse[0] == state['l_code'][0]|int %}
-                        <option id="l_code-assign-{{nurse[0]}}" value="{{nurse[0]}}" selected>
+                        <option id="lcode-assign-{{nurse[0]}}" value="{{nurse[0]}}" selected>
                             {{nurse[1]}}
                         </option>
                         {% endfor %}
@@ -216,11 +240,101 @@
     </div>
 </div>
 
+<!-- Create Modal -->
+<div class="modal fade createModalCenter" id="createModal" tabindex="-1" role="dialog"
+    aria-labelledby="createModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Add Patient</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="/addPatientRecords" method="post">
+                    <div class="form-group">
+                        <label for="create_patient_name">Name</label>
+                        <input class="form-control-1" id="create_patient_name" name="create_patient_name" type="text"
+                            placeholder="eg. John Doe" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-3">
+                            <label for="create_patient_area">Clinical Area</label>
+                            <input id="create_patient_area" name="create_patient_area" type="text" class="form-control-1" placeholder="eg. A" required>
+                        </div>
+                        <div class="col-3 offset-3">
+                            <label for="create_patient_bed_number">Bed Number</label>
+                            <input id="create_patient_bed_number" name="create_patient_bed_number" type="number" class="form-control-1" placeholder="eg. 3" required>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label>Acuity Level</label><br>
+                        <div class="radio-group">
+                            <input type="radio" id="acuity_1" name="create_acuity_level" value="1" checked>
+                            <label for="acuity_1" class="button-select">1</label>
+
+                            <input type="radio" id="acuity_2" name="create_acuity_level" value="2">
+                            <label for="acuity_2" class="button-select">2</label>
+
+                            <input type="radio" id="acuity_3" name="create_acuity_level" value="3">
+                            <label for="acuity_3" class="button-select">3</label>
+
+                            <input type="radio" id="acuity_4" name="create_acuity_level" value="4">
+                            <label for="acuity_4" class="button-select">4</label>
+
+                            <input type="radio" id="acuity_5" name="create_acuity_level" value="5">
+                            <label for="acuity_5" class="button-select">5</label>
+                        </div>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="checkbox" name="create_a_trained_toggle" id="create_a_trained_toggle">
+                        <label for="create_a_trained_toggle" class="toggle">A Trained</label>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="checkbox" name="create_transfer_toggle" id="create_transfer_toggle">
+                        <label for="create_transfer_toggle" class="toggle">Transfer</label>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="checkbox" name="create_iv_toggle" id="create_iv_toggle">
+                        <label for="create_iv_toggle" class="toggle">IV</label>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="checkbox" name="create_one_to_one_toggle" id="create_one_to_one_toggle">
+                        <label for="create_one_to_one_toggle" class="toggle">1:1</label>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="checkbox" name="create_twin_toggle" id="create_twin_toggle">
+                        <label for="create_twin_toggle" class="toggle">Twin</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="create_patient_date_admitted">Date Admitted</label><br>
+                        <input type="date" id="create_patient_date_admitted" name="create_patient_date_admitted" style="border: 1px solid #ced4da;" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="create_patient_comments">Comments</label><br>
+                        <textarea id="create_patient_comments" name="create_patient_comments" rows="3" class="text_area"
+                            placeholder="Eg. Additional comments"></textarea>
+                    </div>
+                    <br>
+                    <div class="modal-footer">
+                        <input class="btn btn_create_custom" id="submit_new_patient" name="submit" type="submit"
+                            value="Confirm">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!--Alert-->
 <div id="alertArea" class="container-fluid"></div>
 
 {% set areas=["A", "B", "C", "D", "E", "F"] %}
 {% set area_iter = namespace(value=0) %}
+{% set ns = namespace() %}
+{% set ns.location = "" %}
 
 <div class="container-fluid">
     {% for card_row in range(2) %}
@@ -322,6 +436,7 @@
                                 id="pod-{{areas[area_iter.value]}}-bed-{{asc_loop + 1}}-nurse-menu">
                                 {% if state['assignment'][areas[area_iter.value]+(asc_loop + 1)|string]['n'][0] %}
                                 {% set nurse_id = state['assignment'][areas[area_iter.value]+(asc_loop + 1)|string]['n'][0] | int %}
+                                {% set ns.location = areas[area_iter.value]+(asc_loop + 1)|string %}
                                 <option id="pod-{{areas[area_iter.value]}}-bed-{{ asc_loop + 1 }}-n-{{nurse_id}}"
                                     value="{{nurse_id}}" selected>{% for nurse in nurseList if nurse[0]==nurse_id %}
                                     {{nurse[1]}}
@@ -330,9 +445,11 @@
                                 {% endif %}
                                 <option id="pod-{{areas[area_iter.value]}}-bed-{{ asc_loop + 1 }}-n-blank" value="">
                                 </option>
-                                {% for index, nurse in enumerate(nurseList) %}
+                                {% for index, nurse in enumerate(pn_skill[ns.location]) %}
+                                {% for i in range(1) %}
                                 <option id='pod-{{areas[area_iter.value]}}-bed-{{ asc_loop + 1 }}-n-{{nurse[0]}}'
                                     value="{{nurse[0]}}">{{nurse[1]}}</option>
+                                {% endfor %}
                                 {% endfor %}
                             </select>
                         </div>
@@ -423,9 +540,10 @@
                             <div class="input-group-prepend">
                                 <label class="input-group-text" style="width: 30px;">N</label>
                             </div>
-                            <select class=" form-control" id="bed-{{ desc_loop + 8 }}-nurse-menu">
+                            <select class=" form-control" id="pod-{{areas[area_iter.value]}}-bed-{{ desc_loop + 8 }}-nurse-menu">
                                 {% if state['assignment'][areas[area_iter.value]+( desc_loop + 8 )|string]['n'][0] %}
                                 {% set nurse_id = state['assignment'][areas[area_iter.value]+(desc_loop + 8 )|string]['n'][0] | int %}
+                                {% set ns.location = areas[area_iter.value]+(desc_loop + 8 )|string %}
                                 <option id="pod-{{areas[area_iter.value]}}-bed-{{ desc_loop + 8 }}-n-{{nurse_id}}"
                                     value="{{nurse_id}}" selected>
                                     {% for nurse in nurseList if nurse[0]==nurse_id %}
@@ -435,9 +553,11 @@
                                 {% endif %}
                                 <option id="pod-{{areas[area_iter.value]}}-bed-{{ desc_loop + 8 }}-n-blank" value="">
                                 </option selected>
-                                {% for index, nurse in enumerate(nurseList) %}
+                                {% for index, nurse in enumerate(pn_skill[ns.location]) %}
+                                {% for i in range(1) %}
                                 <option id='pod-{{areas[area_iter.value]}}-bed-{{ desc_loop + 8 }}-n-{{nurse[0]}}'
                                     value="{{nurse[0]}}">{{nurse[1]}}</option>
+                                {% endfor %}
                                 {% endfor %}
                             </select>
                         </div>
@@ -568,6 +688,11 @@
         }
 
     });
+
+    //
+    // $(document).ready(function() {
+    // $('.form-control').select2();
+    // });
 
     // Save State
     $("#saveStateSubmit").on("click", (event) => {

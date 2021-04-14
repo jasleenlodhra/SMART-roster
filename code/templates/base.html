@@ -21,6 +21,8 @@
     <link rel="stylesheet" type="text/css" href="/style.css">
     <!--Favicon-->
     <link rel="shortcut icon" type="image/ico" href="/images/favicon.ico">
+    <!--Select2-->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 </head>
 
@@ -83,6 +85,11 @@
                 <small>Patient Records</small>
             </a>
             <hr class="my-1">
+            <a href="/patientArchives">
+                <img class="sidebar-icons" src="/images/patient-records-icon.png">
+                <small>Patient Archives</small>
+            </a>
+            <hr class="my-1">
             <a href="/pastPNSheet">
                 <img class="sidebar-icons" src="/images/past-assignments-icon.png">
                 <small>Past Assignments</small>
@@ -115,6 +122,10 @@
                 </div>
                 <form action="/editReference" method="post">
                     <div class="modal-body">
+                        <p>Color coding for nurse assignments:</p>
+                        <p>Green = Charge Nurses</p>
+                        <p>Yellow = Support Nurses</p>
+                        <p>Red = Code Nurses</p>
                         <div class="form-group">
                             <label for="clinical_area">Clinical Area</label><br>
                             <textarea id="clinical_area" name="clinical_area" rows="2" class="text_area"
@@ -181,10 +192,10 @@
                                 placeholder="Eg. Flexible definition"
                                 disabled>{{ get_reference_data[0][12] }}</textarea>
                         </div>
-                        <p>Color coding for nurse assignments:</p>
+                        <!-- <p>Color coding for nurse assignments:</p>
                         <p>Green = Charge Nurses</p>
                         <p>Yellow = Support Nurses</p>
-                        <p>Red = Code Nurses</p>
+                        <p>Red = Code Nurses</p> -->
 
                     </div>
                     <div class="modal-footer">
@@ -220,11 +231,15 @@
             $('#backdrop').removeClass('modal-backdrop');
         }
 
+        // $(document).ready(function() {
+        // $('.filter').select2();
+        // });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
     <script type="text/javascript"
         src="https://cdn.datatables.net/v/bs4/jq-3.3.1/dt-1.10.22/datatables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </body>
 
 </html>

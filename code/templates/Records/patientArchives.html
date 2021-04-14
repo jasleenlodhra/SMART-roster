@@ -1,0 +1,492 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!--Content Here-->
+
+<!--Jumbotron-->
+<div class="jumbotron py-3">
+    <div class="jumbotron-content">
+        <h1>Patient Archive</h1>
+        <br><br>
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Extra div for center of row -->
+                <div class="col-sm"></div>
+                <div class="col-">
+                    <button type="button" class="btn btn_create_custom" data-toggle="modal"
+                        data-target=".createModalCenter">
+                        <span class="fa fa-plus-square"></span> Create
+                    </button>
+                    <button type="button" class="btn btn_edit_custom" onclick="get_edit_data()" data-toggle="modal"
+                        data-target=".editModalCenter">
+                        <span class="fa fa-edit"></span> Edit
+                    </button>
+                    <button class="btn btn-secondary" onclick="get_delete_data()" data-toggle="modal"
+                        data-target=".deleteModalCenter">
+                        <span class="fa fa-trash"></span> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Table-->
+<div>
+    <table class="table table-sm table-bordered" id="patient-record-table" style="margin-bottom: 50px">
+        <!--Dynamically generated table headers-->
+        <thead class="thead-light">
+            <form action="/patientRecords" method="get">
+                <tr id="patient-table-headers">
+                    {% for header in patientHeaders %}
+                    <th>{{header}} </th>
+                    {% endfor %}
+                </tr>
+            </form>
+        </thead>
+        <tbody id="patient-tbody">
+            {% for patient in patientList %}
+            <tr id="{{'p'~patient[0]}}" style="cursor: pointer;">
+                <td>
+                    <div id="{{'p'~patient[0]~'-id'}}">{{patient[0]}}</div>
+                </td>
+                <td>
+                    <div id="{{'p'~patient[0]~'-name'}}">{{patient[1]}}</div>
+                </td>
+                <td>
+                    <div id="{{'p'~patient[0]~'-area'}}">{{patient[2]}}</div>
+                </td>
+                <td>
+                    <div id="{{'p'~patient[0]~'-bednum'}}">{{patient[3]}} </div>
+                </td>
+                <td>
+                    <div id="{{'p'~patient[0]~'-acuity'}}">{{patient[4]}} </div>
+                </td>
+                {% if patient[5]==1 %}
+                <td>
+                    <div id="{{'p'~patient[0]~'-atrainedReq'}}">Yes</div>
+                </td>
+                {% else %}
+                <td>
+                    <div id="{{'p'~patient[0]~'-atrainedReq'}}">No</div>
+                </td>
+                {% endif %}
+                {% if patient[6]==1 %}
+                <td>
+                    <div id="{{'p'~patient[0]~'-transferReq'}}">Yes</div>
+                </td>
+                {% else %}
+                <td>
+                    <div id="{{'p'~patient[0]~'-transferReq'}}">No</div>
+                </td>
+                {% endif %}
+                {% if patient[7]==1 %}
+                <td>
+                    <div id="{{'p'~patient[0]~'-ivReq'}}">Yes</div>
+                </td>
+                {% else %}
+                <td>
+                    <div id="{{'p'~patient[0]~'-ivReq'}}">No</div>
+                </td>
+                {% endif %}
+                {% if patient[8]==1 %}
+                <td>
+                    <div id="{{'p'~patient[0]~'-1to1'}}">Yes</div>
+                </td>
+                {% else %}
+                <td>
+                    <div id="{{'p'~patient[0]~'-1to1'}}">No</div>
+                </td>
+                {% endif %}
+                <td>
+                    <div id="{{'p'~patient[0]~'-prevNurses'}}">{{patient[9]}} </div>
+                </td>
+                <td>
+                    <div id="{{'p'~patient[0]~'-dateAdmitted'}}">{{patient[10]}} </div>
+                </td>
+                <td>
+                    <div id="{{'p'~patient[0]~'-dischargedDate'}}">{{patient[11]}} </div>
+                </td>
+                <td>
+                    <div id="{{'p'~patient[0]~'-comments'}}">{{patient[12]}} </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+<!--Modal-->
+
+<!-- Create Modal -->
+<div class="modal fade createModalCenter" id="createModal" tabindex="-1" role="dialog"
+    aria-labelledby="createModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Add Patient</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="/addPatientArchives" method="post">
+                    <div class="form-group">
+                        <label for="create_patient_name">Name</label>
+                        <input class="form-control" id="create_patient_name" name="create_patient_name" type="text"
+                            placeholder="eg. John Doe" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-3">
+                            <label for="create_patient_area">Clinical Area</label>
+                            <input id="create_patient_area" name="create_patient_area" type="text" class="form-control" placeholder="eg. A" required>
+                        </div>
+                        <div class="col-3 offset-3">
+                            <label for="create_patient_bed_number">Bed Number</label>
+                            <input id="create_patient_bed_number" name="create_patient_bed_number" type="number" class="form-control" placeholder="eg. 3" required>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label>Acuity Level</label><br>
+                        <div class="radio-group">
+                            <input type="radio" id="acuity_1" name="create_acuity_level" value="1" checked>
+                            <label for="acuity_1" class="button-select">1</label>
+
+                            <input type="radio" id="acuity_2" name="create_acuity_level" value="2">
+                            <label for="acuity_2" class="button-select">2</label>
+
+                            <input type="radio" id="acuity_3" name="create_acuity_level" value="3">
+                            <label for="acuity_3" class="button-select">3</label>
+
+                            <input type="radio" id="acuity_4" name="create_acuity_level" value="4">
+                            <label for="acuity_4" class="button-select">4</label>
+
+                            <input type="radio" id="acuity_5" name="create_acuity_level" value="5">
+                            <label for="acuity_5" class="button-select">5</label>
+                        </div>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="checkbox" name="create_a_trained_toggle" id="create_a_trained_toggle">
+                        <label for="create_a_trained_toggle" class="toggle">A Trained</label>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="checkbox" name="create_transfer_toggle" id="create_transfer_toggle">
+                        <label for="create_transfer_toggle" class="toggle">Transfer</label>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="checkbox" name="create_iv_toggle" id="create_iv_toggle">
+                        <label for="create_iv_toggle" class="toggle">IV</label>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="checkbox" name="create_one_to_one_toggle" id="create_one_to_one_toggle">
+                        <label for="create_one_to_one_toggle" class="toggle">1:1</label>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="checkbox" name="create_twin_toggle" id="create_twin_toggle">
+                        <label for="create_twin_toggle" class="toggle">Twin</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="create_patient_date_admitted">Date Admitted</label><br>
+                        <input type="date" id="create_patient_date_admitted" name="create_patient_date_admitted" style="border: 1px solid #ced4da;" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="create_patient_comments">Comments</label><br>
+                        <textarea id="create_patient_comments" name="create_patient_comments" rows="3" class="text_area"
+                            placeholder="Eg. Additional comments"></textarea>
+                    </div>
+                    <br>
+                    <div class="modal-footer">
+                        <input class="btn btn_create_custom" id="submit_new_patient" name="submit" type="submit"
+                            value="Confirm">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade editModalCenter" id="editModal" tabindex="-1" role="dialog"
+    aria-labelledby="editModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Edit Patient</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="/editPatientArchives" method="post">
+                    <input id="edit_patient_id" hidden name="edit_patient_id" required="" size="32" type="text" value=""
+                        placeholder=""><br>
+                    <div class="form-group">
+                        <label for="edit_patient_name">Name</label>
+                        <input class="form-control" id="edit_patient_name" name="edit_patient_name" type="text"
+                            placeholder="eg. John Doe" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-3">
+                            <label for="edit_patient_area">Clinical Area</label>
+                            <input id="edit_patient_area" name="edit_patient_area" type="text" class="form-control" placeholder="eg. A" required>
+                        </div>
+                        <div class="col-3 offset-3">
+                            <label for="edit_patient_bed_number">Bed Number</label>
+                            <input id="edit_patient_bed_number" name="edit_patient_bed_number" type="number" class="form-control" placeholder="eg. 3" required>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label>Acuity Level</label><br>
+                        <div class="radio-group">
+                            <input type="radio" id="acuity_1_edit" name="edit_acuity_level" value="1">
+                            <label for="acuity_1_edit" class="button-select">1</label>
+
+                            <input type="radio" id="acuity_2_edit" name="edit_acuity_level" value="2">
+                            <label for="acuity_2_edit" class="button-select">2</label>
+
+                            <input type="radio" id="acuity_3_edit" name="edit_acuity_level" value="3">
+                            <label for="acuity_3_edit" class="button-select">3</label>
+
+                            <input type="radio" id="acuity_4_edit" name="edit_acuity_level" value="4">
+                            <label for="acuity_4_edit" class="button-select">4</label>
+
+                            <input type="radio" id="acuity_5_edit" name="edit_acuity_level" value="5">
+                            <label for="acuity_5_edit" class="button-select">5</label>
+                        </div>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="checkbox" name="edit_a_trained_toggle" id="edit_a_trained_toggle">
+                        <label for="edit_a_trained_toggle" class="toggle">A Trained</label>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="checkbox" name="edit_transfer_toggle" id="edit_transfer_toggle">
+                        <label for="edit_transfer_toggle" class="toggle">Transfer</label>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="checkbox" name="edit_iv_toggle" id="edit_iv_toggle">
+                        <label for="edit_iv_toggle" class="toggle">IV</label>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="checkbox" name="edit_one_to_one_toggle" id="edit_one_to_one_toggle">
+                        <label for="edit_one_to_one_toggle" class="toggle">1:1</label>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="checkbox" name="edit_twin_toggle" id="edit_twin_toggle">
+                        <label for="edit_twin_toggle" class="toggle">Twin</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_date_admitted">Date Admitted</label><br>
+                        <input type="date" id="edit_date_admitted" name="edit_date_admitted"
+                            style="border: 1px solid #ced4da;">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_date_discharged">Date Discharged</label><br>
+                        <input type="date" id="edit_date_discharged" name="edit_date_discharged"
+                            style="border: 1px solid #ced4da;">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_comments">Comments</label><br>
+                        <textarea id="edit_comments" name="edit_comments" rows="3" class="text_area"
+                            placeholder="Eg. Additional comments"></textarea>
+                    </div>
+                    <br>
+                    <div class="modal-footer">
+                        <input class="btn btn_edit_custom" id="submit_edit_patient" name="submit" type="submit"
+                            value="Confirm">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade deleteModalCenter" id="deleteModal" tabindex="-1" role="dialog"
+    aria-labelledby="deleteModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Delete Patient</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="/deletePatientArchives" method="post">
+                    <input id="remove_patient_id" hidden name="remove_patient_id" required="" size="32" type="text"
+                        value="" placeholder="">
+                    Are you sure you want to delete</p>
+                    <input id="remove_patient_name" disabled name="remove_patient_name" required="" size="32"
+                        type="text" value="" placeholder="">
+                    <div class="modal-footer">
+                        <input class="btn btn_edit_custom" id="submit" name="submit" type="submit" value="Confirm">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var rowId = null;
+
+    function highlight_row() {
+        var table = document.getElementById('patient-record-table');
+        var cells = table.getElementsByTagName('td');
+
+        for (var i = 0; i < cells.length; i++) {
+            var cell = cells[i];
+            cell.onclick = function () {
+                if (rowId != null && rowId == this.parentNode.rowIndex) {
+                    var rowSelected = table.getElementsByTagName('tr')[rowId];
+                    rowSelected.classList.toggle("table-primary");
+                    rowId = null; // Reset rowId
+                } else {
+                    // Take current row index
+                    rowId = this.parentNode.rowIndex;
+
+                    var rowsNotSelected = table.getElementsByTagName('tr');
+                    for (var row = 0; row < rowsNotSelected.length; row++) {
+                        rowsNotSelected[row].classList.remove('table-primary');
+                    }
+                    var rowSelected = table.getElementsByTagName('tr')[rowId];
+
+                    rowSelected.classList.toggle("table-primary", true);
+                }
+            }
+        }
+        table.onclick = function () {
+            console.log(rowId);
+            console.log(table.rows[rowId].cells[0].innerText);
+        }
+    }
+
+    // Grab delete data
+    function get_delete_data() {
+        // Gets data from selected row
+        var table = document.getElementById('patient-record-table');
+        var patient_id = table.rows[rowId].cells[0].innerText;
+        var patient_name = table.rows[rowId].cells[1].innerText;
+
+        //Sets input values
+        document.getElementById('remove_patient_id').value = patient_id;
+        document.getElementById('remove_patient_name').value = patient_name;
+
+        // Testing purposes 
+        console.log(patient_id)
+        console.log(patient_name)
+
+    }
+
+    // Grab edit data
+    function get_edit_data() {
+        // Gets data from selected row
+        var table = document.getElementById('patient-record-table');
+        var patient_id = table.rows[rowId].cells[0].innerText;
+        var patient_name = table.rows[rowId].cells[1].innerText;
+        var patient_clinical_area = table.rows[rowId].cells[2].innerText;
+        var patient_bed = table.rows[rowId].cells[3].innerText;
+        var patient_acuity_level = table.rows[rowId].cells[4].innerText;
+        var patient_a_trained = table.rows[rowId].cells[5].innerText;
+        var patient_transfer = table.rows[rowId].cells[6].innerText;
+        var patient_iv = table.rows[rowId].cells[7].innerText;
+        var patient_1_to_1 = table.rows[rowId].cells[8].innerText;
+        var patient_prev_nurses = table.rows[rowId].cells[9].innerText;
+        var patient_date_admitted = table.rows[rowId].cells[10].innerText;
+        var patient_date_discharged = table.rows[rowId].cells[11].innerText;
+        var patient_date_comments = table.rows[rowId].cells[12].innerText;
+
+        //Sets input values
+        document.getElementById('edit_patient_id').value = patient_id;
+        document.getElementById('edit_patient_name').value = patient_name;
+        document.getElementById('edit_patient_area').value = patient_clinical_area;
+        document.getElementById('edit_patient_bed_number').value = patient_bed;
+        document.getElementById('edit_comments').value = patient_date_comments
+        document.getElementById("edit_date_admitted").value = patient_date_admitted
+        document.getElementById("edit_date_discharged").value = patient_date_discharged
+
+        if (patient_acuity_level == 1) {
+            document.getElementById("acuity_1_edit").checked = true;
+        } else if (patient_acuity_level == 2) {
+            document.getElementById("acuity_2_edit").checked = true;
+        } else if (patient_acuity_level == 3) {
+            document.getElementById("acuity_3_edit").checked = true;
+        } else if (patient_acuity_level == 4) {
+            document.getElementById("acuity_4_edit").checked = true;
+        } else if (patient_acuity_level == 5) {
+            document.getElementById("acuity_5_edit").checked = true;
+        }
+
+        if (patient_a_trained == "Yes") {
+            document.getElementById("edit_a_trained_toggle").checked = true;
+        } else {
+            document.getElementById("edit_a_trained_toggle").checked = false;
+        }
+
+        if (patient_transfer == "Yes") {
+            document.getElementById("edit_transfer_toggle").checked = true;
+        } else {
+            document.getElementById("edit_transfer_toggle").checked = false;
+        }
+
+        if (patient_iv == "Yes") {
+            document.getElementById("edit_iv_toggle").checked = true;
+
+        } else {
+            document.getElementById("edit_iv_toggle").checked = false;
+
+        }
+        if (patient_iv == "Yes") {
+            document.getElementById("edit_one_to_one_toggle").checked = true;
+
+        } else {
+            document.getElementById("edit_one_to_one_toggle").checked = false;
+
+        }
+        if (patient_iv == "Yes") {
+            document.getElementById("edit_twin_toggle").checked = true;
+
+        } else {
+            document.getElementById("edit_twin_toggle").checked = false;
+
+        }
+
+    }
+
+
+    // Filter Data by Column
+    $(document).ready(function () {
+        // Setup - add a text input to each header cell
+        $('#patient-record-table thead tr').clone(true).appendTo('#patient-record-table thead');
+        $('#patient-record-table thead tr:eq(1) th').each(function (i) {
+            $(this).html('<input class="form-control form-control-sm" type="text" placeholder="Filter..." />');
+            $('input', this).on('keyup change', function () {
+                if (table.column(i).search() !== this.value) {
+                    table
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+
+        var table = $('#patient-record-table').DataTable({
+            // Order
+            orderCellsTop: true,
+            ordering: true,
+            paging: false,
+            info: false,
+            searching: true,
+            dom: 'lrtip',
+            responsive: true
+        });
+    });
+
+    window.onload = highlight_row;
+</script>
+
+{% endblock %}
