@@ -18,6 +18,7 @@ import mysql.connector
 import os
 import bcrypt
 import shutil
+import sys
 
 # from jinja import jinja2.ext.do
 
@@ -45,7 +46,8 @@ app.secret_key = os.urandom(12).hex()
 db = mysql.connector.connect(
     host="localhost",
     user="root",
-    passwd="MyNewPassword",
+    # passwd="MyNewPassword",
+    passwd=sys.argv[1],
     database="smartroster",
     auth_plugin="mysql_native_password"
 )

@@ -1,5 +1,7 @@
 @echo off
 
-pip install mysql.connector
-pip install flask
-pip install bcrypt
+pip install -r requirements.txt
+
+set /p dbpw=Dependencies installed! Please enter your MySQL database password:
+
+python app.py %dbpw%
