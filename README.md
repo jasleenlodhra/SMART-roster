@@ -53,25 +53,25 @@ The root account credentials are `charge_nurse` and `Password1`.
 ## Authors
 Jan 2021 - Apr 2021
 
-    **Term 4s**
-    - John Zhang
+  **Term 4s**
+  - John Zhang
 
-    **Term 3s**
-    - Zhentian Steven Zhang
-    - Qi Dang
-    - Jasleen Lodhra
-    - Soroosh Azizi
-    - Shivar Vishal Pillay
+  **Term 3s**
+  - Zhentian Steven Zhang
+  - Qi Dang
+  - Jasleen Lodhra
+  - Soroosh Azizi
+  - Shivar Vishal Pillay
 
 Sept 2020 - Dec 2020
 
-    **Term 4s**
-    - Jimmy Ho
-    - Eugene Joy
-    - Zachery Johnston
+  **Term 4s**
+  - Jimmy Ho
+  - Eugene Joy
+  - Zachery Johnston
 
-    **Term 3s**
-    - Jaguar Perlas
-    - Miguel Capaz
-    - Nick Janus
-    - Nathan Broyles
+  **Term 3s**
+  - Jaguar Perlas
+  - Miguel Capaz
+  - Nick Janus
+  - Nathan Broyles
