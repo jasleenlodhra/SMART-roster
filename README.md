@@ -26,7 +26,7 @@ The project aim is to develop a web-based application that will match scheduled 
 ### **Installation**
 #### MySQL
 Follow the instructions in this [link](https://dev.mysql.com/downloads/mysql/) to install the MySQL Community Server. <br>
-Once the server is correctly set up, import all `.sql` files from the `SQL Import Files` folder. If set up correctly, there should be a `smartroster` database, with `nurses`, `patients`, `reference_page` and `users` tables. 
+Once the server is correctly set up, import all `.sql` files from the `SQL Import Files` folder. If set up correctly, there should be a `smartroster` database, with `nurses`, `patients`, `reference_page`, `users`, `patient_nurse_assignment`, and `adv_role_assignments` tables. 
 
 #### Python Dependencies
 If on Windows, run `dependencies.bat` to install the dependencies required for Python. For Linux and MacOS users, please refer to `main.py` to determine the dependencies required.
@@ -51,19 +51,25 @@ The root account credentials are `charge_nurse` and `Password1`.
 <br>
 
 ## Authors
-**Term 4s**
-- Jimmy Ho
-- Eugene Joy
-- Zachery Johnston
-- John Zhang
+Jan 2021 - Apr 2021
+  **Term 4s**
+  - John Zhang
 
-**Term 3s**
-- Jaguar Perlas
-- Miguel Capaz
-- Nick Janus
-- Nathan Broyles
-- Zhentian Steven Zhang
-- Qi Dang
-- Jasleen Lodhra
-- Soroosh Azizi
-- Shivar Vishal Pillay
+  **Term 3s**
+  - Zhentian Steven Zhang
+  - Qi Dang
+  - Jasleen Lodhra
+  - Soroosh Azizi
+  - Shivar Vishal Pillay
+
+Sept 2020 - Dec 2020
+  **Term 4s**
+  - Jimmy Ho
+  - Eugene Joy
+  - Zachery Johnston
+
+  **Term 3s**
+  - Jaguar Perlas
+  - Miguel Capaz
+  - Nick Janus
+  - Nathan Broyles
